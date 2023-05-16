@@ -24,7 +24,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    XbrGaodeNaviAmap.initKey(androidKey: "e3af18fff0b5be1a07f4160e0fa6365f", iosKey: "3e4d23ba8650e40da48ae7cd3b8aeaa9");
+    XbrGaodeNaviAmap.initKey(androidKey: "e3af18fff0b5be1a07f4160e0fa6365f", iosKey: "6576199a6c246345e57fee50d2edc8d1");
     XbrGaodeNaviAmap.updatePrivacy(hasContains: true, hasShow: true, hasAgree: true);
   }
 
