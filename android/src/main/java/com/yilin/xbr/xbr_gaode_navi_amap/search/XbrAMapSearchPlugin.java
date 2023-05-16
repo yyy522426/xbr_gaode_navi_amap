@@ -57,6 +57,7 @@ public class XbrAMapSearchPlugin {
       case "boundSearch":{
         //周边搜索
         String pointJson = call.argument("pointJson");
+        String keyWord = call.argument("keyWord");
         Integer scope = call.argument("scope");
         Integer page = call.argument("page");
         Integer limit = call.argument("limit");
@@ -68,7 +69,7 @@ public class XbrAMapSearchPlugin {
           Double[] map = GsonUtil.fromJson(pointJson, new TypeToken<Double[]>() {});
           if (map.length == 2) latLonPoint = new LatLonPoint(toDouble(map[0]), toDouble(map[1]));
         }
-        getAmapSearchClient().boundSearch(latLonPoint, scope, page, limit, new SearchBack() {
+        getAmapSearchClient().boundSearch(latLonPoint,keyWord, scope, page, limit, new SearchBack() {
           @Override
           public void back(final int code,final Map<String,Object> map) {
             result.success(GsonUtil.toJson(toResult(code,map)));

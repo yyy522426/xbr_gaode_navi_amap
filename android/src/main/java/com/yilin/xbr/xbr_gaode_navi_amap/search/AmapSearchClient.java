@@ -88,9 +88,9 @@ public class AmapSearchClient {
     /**
      * 周边搜索
      */
-    public void boundSearch(LatLonPoint latLonPoint,Integer scope, int page, int limit, final SearchBack searchBack) {
+    public void boundSearch(LatLonPoint latLonPoint,String keyWord,Integer scope, int page, int limit, final SearchBack searchBack) {
         try {
-            PoiSearchV2.Query query = new PoiSearchV2.Query("", "");
+            PoiSearchV2.Query query = new PoiSearchV2.Query(keyWord, "");
             query.setPageSize(limit);// 设置每页最多返回多少条poiitem
             query.setPageNum(page);//设置查询页码
             PoiSearchV2 poiSearch = new PoiSearchV2(context, query);
