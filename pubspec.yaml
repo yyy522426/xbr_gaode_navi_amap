@@ -1,7 +1,7 @@
 name: xbr_gaode_navi_amap
 description: include amap,search,location,navi
-version: 0.0.1
-homepage:
+version: 1.0.0
+homepage: https://gitee.com/mywentop
 
 environment:
   sdk: ">=2.16.2 <3.0.0"
