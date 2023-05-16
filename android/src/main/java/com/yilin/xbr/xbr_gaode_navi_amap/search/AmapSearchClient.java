@@ -319,7 +319,7 @@ public class AmapSearchClient {
                             paths.add(pathMap);
                         }
                     }
-                    if (onlyOne) map.put("paths",initList(paths.get(0)));
+                    if (onlyOne && paths.size()>0) map.put("paths",initList(paths.get(0)));
                     else map.put("paths",paths);
                     searchBack.back(code,map);
                 }
@@ -422,7 +422,7 @@ public class AmapSearchClient {
                         paths.add(pathMap);
                     }
                 }
-                if (onlyOne) map.put("paths",initList(paths.get(0)));
+                if (onlyOne && paths.size()>0) map.put("paths",initList(paths.get(0)));
                 else map.put("paths",paths);
                 searchBack.back(code,map);
             });
