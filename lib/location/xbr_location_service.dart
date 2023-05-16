@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+
 import '../_core/location_info.dart';
 import '../_core/location_option.dart';
 import 'gaode_location.dart';
@@ -20,30 +22,28 @@ class XbrLocation {
     return _instance!;
   }
 
-  Map<String,GaodeLocation> clientMap = <String,GaodeLocation>{};
+  Map<String, GaodeLocation> clientMap = <String, GaodeLocation>{};
+  GaodeLocation? backgroundGaodeLocation;
 
   ///开始定位
   //优化 多线程回调 clientName 多个地方同时使用后台定位，这里可以同时返回多个回调通道
   void startTimeLocation(
       {String clientKey = "singleTimeLocation",
-        int interval = 2000,
-        double distance = -1,
-        bool backgroundService = false, //android新增，后台定位保活机制，一个运行终端只允许启动一个后台定位保活，一般用来后台采集轨迹，息屏也可以采集定位
-        AMapLocationMode locationMode = AMapLocationMode.Hight_Accuracy,
-        DesiredAccuracy desiredAccuracy = DesiredAccuracy.Best,
-        required LocationCallback callback}) {
-
+      int interval = 2000,
+      double distance = -1,
+      AMapLocationMode locationMode = AMapLocationMode.Hight_Accuracy,
+      DesiredAccuracy desiredAccuracy = DesiredAccuracy.Best,
+      required LocationCallback callback}) {
     //注意：定位已经在启动，不摧毁不要反复执行
-    if(!clientMap.containsKey(clientKey)){
-      GaodeLocation? location = GaodeLocation(backgroundService: backgroundService);
+    if (!clientMap.containsKey(clientKey)) {
+      GaodeLocation? location = GaodeLocation(backgroundService: false);
       //监听定位返回
       location.onLocationChanged().listen((Map<String, Object> result) {
         currentLocation = LocationInfo.fromJson(result);
         callback(currentLocation!);
       });
-      clientMap[clientKey]= location;
+      clientMap[clientKey] = location;
     }
-
     LocationOption locationOption = LocationOption(
       onceLocation: false,
       locationInterval: interval,
@@ -58,7 +58,42 @@ class XbrLocation {
     clientMap[clientKey]?.startLocation();
   }
 
-  ///优化 多线程
+  ///开启后台进程定位
+  void startBackgroundLocation({
+    int interval = 2000,
+    double distance = -1,
+    AMapLocationMode locationMode = AMapLocationMode.Hight_Accuracy,
+    DesiredAccuracy desiredAccuracy = DesiredAccuracy.Best,
+    required LocationCallback callback
+  }) {
+    if (backgroundGaodeLocation != null) {
+      clientMap["xbr_background_time_location"] = backgroundGaodeLocation!;
+    }else{
+      GaodeLocation? location = GaodeLocation(backgroundService: true);
+      clientMap["xbr_background_time_location"] = location;
+      backgroundGaodeLocation = location;
+    }
+    LocationOption locationOption = LocationOption(
+      onceLocation: false,
+      locationInterval: interval,
+      distanceFilter: distance,
+      locationMode: locationMode,
+      desiredAccuracy: desiredAccuracy,
+      sensorEnable: true,
+    );
+    //适配ios14及以上 精准定位权限
+    locationOption.fullAccuracyPurposeKey = fullAccuracyPurposeKey ?? "purposeKey";
+    clientMap["xbr_background_time_location"]?.setLocationOption(locationOption);
+    clientMap["xbr_background_time_location"]?.startLocation();
+  }
+
+  ///摧毁后台进程定位
+  void destroyBackgroundLocation({required String clientKey}) {
+    destroyLocation(clientKey:"xbr_background_time_location");
+    backgroundGaodeLocation = null;
+  }
+
+  ///摧毁持续定位
   void destroyLocation({required String clientKey}) {
     //地图上开启定位（持续定位）必须跟随销毁，否则UI显示时会报错
     if (clientMap.containsKey(clientKey)) {
@@ -81,7 +116,7 @@ class XbrLocation {
       callback(currentLocation!);
       return;
     }
-    if(!clientMap.containsKey(clientKey)){
+    if (!clientMap.containsKey(clientKey)) {
       GaodeLocation? location = GaodeLocation();
       //监听定位返回
       location.onLocationChanged().listen((Map<String, Object> result) {
@@ -89,7 +124,7 @@ class XbrLocation {
         callback(location);
         destroyLocation(clientKey: clientKey);
       });
-      clientMap[clientKey]= location;
+      clientMap[clientKey] = location;
     }
     LocationOption option = LocationOption(
       onceLocation: true,
@@ -101,5 +136,4 @@ class XbrLocation {
     clientMap[clientKey]?.setLocationOption(option);
     clientMap[clientKey]?.startLocation();
   }
-
 }

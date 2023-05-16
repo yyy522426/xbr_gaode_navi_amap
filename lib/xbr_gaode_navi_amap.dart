@@ -15,14 +15,26 @@ class XbrGaodeNaviAmap {
     return version;
   }
 
-  ///初始化KEY
-  static Future<void> initKey({required String androidKey, required String iosKey}) async {
-    XbrNavi.initKey(androidKey: androidKey, iosKey: iosKey);
+  static void initKey({
+    required String? androidKey,
+    required String? iosKey,
+  }) {
+    channel.invokeMethod('setApiKey', {'android': androidKey, 'ios': iosKey});
+  }
+
+  static void updatePrivacyShow(bool hasContains, bool hasShow) {
+    channel.invokeMethod('updatePrivacyStatement', {'hasContains': hasContains, 'hasShow': hasShow});
+  }
+
+  static void updatePrivacyAgree(bool hasAgree) {
+    channel.invokeMethod('updatePrivacyStatement', {'hasAgree': hasAgree});
   }
 
   ///隐私合规
   static void updatePrivacy({required bool hasContains, required bool hasShow, required bool hasAgree}) {
-    XbrNavi.updatePrivacy(hasContains: hasContains, hasShow: hasShow, hasAgree: hasAgree);
+    updatePrivacyShow(hasContains, hasShow);
+    updatePrivacyAgree(hasAgree);
   }
+
 
 }

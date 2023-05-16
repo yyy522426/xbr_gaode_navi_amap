@@ -48,6 +48,7 @@ class XbrSearch {
   ///周边POI
   static Future<void> boundSearch({
     required LatLng point,
+    String? keyWord,
     int? score = 1000,
     int? page = 1,
     int? limit = 10,
@@ -56,6 +57,7 @@ class XbrSearch {
     final String? jsonStr = await _channel.invokeMethod('boundSearch', {
       "pointJson": json.encode(point),
       "score": score,
+      "keyWord":keyWord,
       "page": page,
       "limit": limit,
     });
@@ -174,6 +176,7 @@ class XbrSearch {
   static Future<void> truckRouteSearchPage({
     required List<LatLng> wayPoints,
     int? drivingMode,
+    TruckInfo? truckInfo,
     int? showFields,//ShowFields.
     RouteResultBack? back,
   }) async {
@@ -192,7 +195,7 @@ class XbrSearch {
         return;
       }
       if(page>1) pagePoints.insert(0,pagingLast<LatLng>(wayPoints, page-1, pageLimit));//加入上一页的最后一个点，插在首位
-      await truckRouteSearch(wayPoints:pagePoints,drivingMode:drivingMode,showFields:showFields, back:(int? code, RouteResult data){
+      await truckRouteSearch(wayPoints:pagePoints,drivingMode:drivingMode,showFields:showFields,truckInfo:truckInfo, back:(int? code, RouteResult data){
         if(code != 1000) {
           if(back!=null) back(code,data);//只要有一页报错，线路中断，就不要继续了
           return;

@@ -9,27 +9,6 @@ class XbrNavi {
 
   static const MethodChannel _channel = XbrGaodeNaviAmap.channel;
 
-  static void initKey({
-    required String? androidKey,
-    required String? iosKey,
-  }) {
-    _channel.invokeMethod('setApiKey', {'android': androidKey, 'ios': iosKey});
-  }
-
-  static void updatePrivacyShow(bool hasContains, bool hasShow) {
-    _channel.invokeMethod('updatePrivacyStatement', {'hasContains': hasContains, 'hasShow': hasShow});
-  }
-
-  static void updatePrivacyAgree(bool hasAgree) {
-    _channel.invokeMethod('updatePrivacyStatement', {'hasAgree': hasAgree});
-  }
-
-  ///隐私合规
-  static void updatePrivacy({required bool hasContains, required bool hasShow, required bool hasAgree}) {
-    updatePrivacyShow(hasContains, hasShow);
-    updatePrivacyAgree(hasAgree);
-  }
-
   /// title：标题，仅android有效
   /// subtext：标题，仅android有效
   /// points：导航点 第一个为起点，最后一个终点，中间为途经点，长度不能小于2
