@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../_core/driving_mode.dart';
+import 'package:xbr_gaode_navi_amap/_core/show_fields.dart';
 import '../../_core/driving_strategy.dart';
 import '../../amap/amap_widget.dart';
 import '../../amap/base/amap_flutter_base.dart';
@@ -49,15 +49,16 @@ class AmapSearchUtil {
           capType: CapType.round,
           points: linePoints,
           color: lineColor??Colors.blueAccent,
-          width: 14,
+          width: 6,
         ));
         ///利用MAP控制器移动相机到线路最大可视面积，边距50
         mapController.moveCamera(CameraUpdate.newLatLngBounds(bounds, 50), duration: 1000);
         ///绘制关键点
         for(int i=0;i< itemList.length;i++){
           uiController.saveMarker(itemList[i].markerId??"planningPoint$i", Marker(
-            icon: BitmapDescriptor.fromIconPath(itemList[i].iconPath),
+            icon: itemList[i].iconPath==null?null:BitmapDescriptor.fromIconPath(itemList[i].iconPath!),
             position: itemList[i].latLng,
+            infoWindow: InfoWindow(title: "第${i+1}个")
           ));
           if(itemList[i].showScope){
             ///绘制一个scope米的电子围栏
@@ -87,12 +88,13 @@ class AmapSearchUtil {
     );
   }
 
-  ///线路规划
-  static void routePlanning({required List<LatLng> wayPoints, int? strategy, PlanningCallBack? callBack,CalculateCallBack? calculateBack}) {
+  // 线路规划
+  static void routePlanning({required List<LatLng> wayPoints, int? strategy, PlanningCallBack? callBack}) {
     if (wayPoints.length < 2) return;
-    XbrSearch.routeSearch(
+    XbrSearch.routeSearchPage(
       wayPoints: wayPoints,
       strategy: strategy ?? DrivingStrategy.DEFAULT,
+      showFields: ShowFields.POLINE,
       back: (code, data) {
         if (code != 1000) {
           ToLatLng southwest, northeast;
@@ -110,38 +112,20 @@ class AmapSearchUtil {
         List<LatLng> points = PointUtil.listCover(data.paths![0].polyline);
         if (callBack != null) {
           callBack(1000, points, PointUtil.lineBounds(points));
-        }
-        if(calculateBack != null){
-          calculateBack(data.paths![0].distance?.toInt()??0,data.paths![0].duration?.toInt()??0);
         }
       },
     );
   }
 
-  ///新增 线路规划 带自动分页 wayPoints>6时
-  static void routePlanningPage({required List<LatLng> wayPoints, int? strategy, PlanningCallBack? callBack,CalculateCallBack? calculateBack}) {
-    if (wayPoints.length < 2) return;
+  // 线路計算
+  static void routeCalculate({required List<LatLng> wayPoints, int? strategy, CalculateCallBack? calculateBack}) {
     XbrSearch.routeSearchPage(
       wayPoints: wayPoints,
       strategy: strategy ?? DrivingStrategy.DEFAULT,
+      showFields: ShowFields.COST,
       back: (code, data) {
-        if (code != 1000) {
-          ToLatLng southwest, northeast;
-          if (wayPoints[0].latitude < wayPoints[0].latitude) {
-            southwest = ToLatLng.from(wayPoints[0]);
-            northeast = ToLatLng.from(wayPoints[1]);
-          } else {
-            southwest = ToLatLng.from(wayPoints[1]);
-            northeast = ToLatLng.from(wayPoints[0]);
-          }
-          if (callBack != null) callBack((code), [], LatLngBounds(southwest: southwest, northeast: northeast));
-          return;
-        }
+        if (code != 1000) return;
         if(data.paths==null|| data.paths!.isEmpty) return;
-        List<LatLng> points = PointUtil.listCover(data.paths![0].polyline);
-        if (callBack != null) {
-          callBack(1000, points, PointUtil.lineBounds(points));
-        }
         if(calculateBack != null){
           calculateBack(data.paths![0].distance?.toInt()??0,data.paths![0].duration?.toInt()??0);
         }
@@ -153,7 +137,7 @@ class AmapSearchUtil {
 
 class PlanItem {
   final LatLng latLng;
-  final String iconPath;
+  final String? iconPath;
   final bool showScope;
   final double scope;
   final bool showConnecting;
@@ -164,7 +148,7 @@ class PlanItem {
 
   PlanItem({
     required this.latLng,
-    required this.iconPath,
+    this.iconPath,
     this.showScope = false,
     this.scope = 300,
     this.showConnecting = false,

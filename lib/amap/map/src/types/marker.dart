@@ -118,7 +118,7 @@ class Marker extends BaseOverlay {
   final bool draggable;
 
   /// 覆盖物的图标
-  final BitmapDescriptor icon;
+  final BitmapDescriptor? icon;
 
   /// 是否显示气泡，如果为true,则点击[Marker]后，会显示该气泡[InfoWindow]
   /// 如果为false,则始终不会显示该气泡
@@ -200,7 +200,7 @@ class Marker extends BaseOverlay {
     addIfPresent('anchor', _offsetToJson(anchor));
     addIfPresent('clickable', clickable);
     addIfPresent('draggable', draggable);
-    addIfPresent('icon', icon.toMap());
+    addIfPresent('icon', icon?.toMap());
     addIfPresent('infoWindowEnable', infoWindowEnable);
     addIfPresent('infoWindow', infoWindow._toMap());
     addIfPresent('position', position.toJson());

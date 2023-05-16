@@ -16,7 +16,7 @@ class FlatMarker extends Marker {
     Offset anchor = const Offset(0.5, 0.5),
     bool clickable = true,
     bool draggable = false,
-    BitmapDescriptor icon = BitmapDescriptor.defaultMarker,
+    BitmapDescriptor? icon,
     bool infoWindowEnable = true,
     InfoWindow infoWindow = InfoWindow.noText,
     double rotation = 0.0,
@@ -30,7 +30,7 @@ class FlatMarker extends Marker {
           anchor: anchor,
           clickable: clickable,
           draggable: draggable,
-          icon: icon,
+          icon: icon = BitmapDescriptor.defaultMarker,
           infoWindowEnable: infoWindowEnable,
           infoWindow: infoWindow,
           rotation: rotation,
@@ -63,7 +63,7 @@ class FlatMarker extends Marker {
       clickable: clickableParam ?? clickable,
       flat: flatParam ?? flat,
       draggable: draggableParam ?? draggable,
-      icon: iconParam ?? icon,
+      icon: iconParam ?? icon!,
       infoWindowEnable: infoWindowEnableParam ?? infoWindowEnable,
       infoWindow: infoWindowParam ?? infoWindow,
       position: positionParam ?? position,
@@ -95,7 +95,7 @@ class FlatMarker extends Marker {
     addIfPresent('clickable', clickable);
     addIfPresent('flat', flat);
     addIfPresent('draggable', draggable);
-    addIfPresent('icon', icon.toMap());
+    addIfPresent('icon', icon?.toMap());
     addIfPresent('infoWindowEnable', infoWindowEnable);
     addIfPresent('infoWindow', _infoWindowToJson(infoWindow));
     addIfPresent('position', position.toJson());

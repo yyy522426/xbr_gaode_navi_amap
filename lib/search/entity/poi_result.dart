@@ -1,14 +1,11 @@
 class PoiResult {
-  List<String>? searchSuggestionKeywords;
   List<Pois>? pois;
   num? count;
-  List<SearchSuggestionCity>? searchSuggestionCitys;
 
   PoiResult(
-      {this.searchSuggestionKeywords,this.count, this.pois, this.searchSuggestionCitys});
+      {this.count, this.pois});
 
   PoiResult.fromJson(Map<String, dynamic> json) {
-    searchSuggestionKeywords = json['searchSuggestionKeywords'].cast<String>();
     if (json['pois'] != null) {
       pois = <Pois>[];
       json['pois'].forEach((v) {
@@ -16,25 +13,14 @@ class PoiResult {
       });
     }
     count = json['count']??0;
-    if (json['searchSuggestionCitys'] != null) {
-      searchSuggestionCitys = <SearchSuggestionCity>[];
-      json['searchSuggestionCitys'].forEach((v) {
-        searchSuggestionCitys!.add(SearchSuggestionCity.fromJson(v));
-      });
-    }
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['searchSuggestionKeywords'] = searchSuggestionKeywords;
     if (pois != null) {
       data['pois'] = pois!.map((v) => v.toJson()).toList();
     }
     data['count'] = count??0;
-    if (searchSuggestionCitys != null) {
-      data['searchSuggestionCitys'] =
-          searchSuggestionCitys!.map((v) => v.toJson()).toList();
-    }
     return data;
   }
 }

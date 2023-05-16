@@ -1,10 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/services.dart';
 import 'package:xbr_gaode_navi_amap/xbr_gaode_navi_amap.dart';
 import 'dart:math' as math;
 
+import '../_core/driving_strategy.dart';
 import '../amap/base/amap_flutter_base.dart';
 import 'entity/geocoding_result.dart';
 import 'entity/input_tip_result.dart';
@@ -112,13 +111,13 @@ class XbrSearch {
   static Future<void> routeSearchPage({
     required List<LatLng> wayPoints,
     int? strategy,
-    bool simpyJson = true,//简化json：只返回 第一线路点信息及其时间+距离
+    int? showFields,//ShowFields.
     RouteResultBack? back,
   }) async {
     if(wayPoints.length<2) return;
     int pageLimit = 7; // 最大6个途经点即8个点，预留上一个连接点，正好每页7个
     //int totalPage = wayPoints.length % pageLimit;//总页数
-    //需要采集的数据，分页只允许采集简化数据
+    //需要采集的数据，分页只返回一條綫路
     List<String> polylineList = [];
     num distance = 0;
     num duration = 0;
@@ -130,7 +129,7 @@ class XbrSearch {
         return;
       }
       if(page>1) pagePoints.insert(0,pagingLast<LatLng>(wayPoints, page-1, pageLimit));//加入上一页的最后一个点，插在首位
-      await routeSearch(wayPoints:pagePoints,strategy:strategy,simpyJson:false, back:(int? code, RouteResult data){
+      await routeSearch(wayPoints:pagePoints,strategy:strategy,showFields:showFields, back:(int? code, RouteResult data){
         if(code != 1000) {
           if(back!=null) back(code,data);//只要有一页报错，线路中断，就不要继续了
           return;
@@ -152,14 +151,16 @@ class XbrSearch {
   ///线路规划
   static Future<void> routeSearch({
     required List<LatLng> wayPoints,
-    int? strategy,
-    bool simpyJson = true,//简化json：只返回 第一线路点信息及其时间+距离
+    int? strategy ,
+    int? showFields,//ShowFields.
+    bool onlyOne = true,
     RouteResultBack? back,
   }) async {
     final String? jsonStr = await _channel.invokeMethod('routeSearch', {
       "wayPointsJson": json.encode(wayPoints),
-      "strategy": strategy,
-      "simpyJson": simpyJson,
+      "strategy": strategy??DrivingStrategy.DEFAULT,
+      "showFields": showFields,
+      "onlyOne": onlyOne,
     });
     if (jsonStr != null) {
       Map? map = json.decode(jsonStr);
@@ -173,13 +174,13 @@ class XbrSearch {
   static Future<void> truckRouteSearchPage({
     required List<LatLng> wayPoints,
     int? drivingMode,
-    bool simpyJson = true,//简化json：只返回 第一线路点信息及其时间+距离
+    int? showFields,//ShowFields.
     RouteResultBack? back,
   }) async {
     if(wayPoints.length<2) return;
     int pageLimit = 7; // 最大6个途经点即8个点，预留上一个连接点，正好每页7个
     //int totalPage = wayPoints.length % pageLimit;//总页数
-    //需要采集的数据，分页只允许采集简化数据
+    //需要采集的数据，分页只返回一條綫路
     List<String> polylineList = [];
     num distance = 0;
     num duration = 0;
@@ -191,7 +192,7 @@ class XbrSearch {
         return;
       }
       if(page>1) pagePoints.insert(0,pagingLast<LatLng>(wayPoints, page-1, pageLimit));//加入上一页的最后一个点，插在首位
-      await truckRouteSearch(wayPoints:pagePoints,drivingMode:drivingMode,simpyJson:false, back:(int? code, RouteResult data){
+      await truckRouteSearch(wayPoints:pagePoints,drivingMode:drivingMode,showFields:showFields, back:(int? code, RouteResult data){
         if(code != 1000) {
           if(back!=null) back(code,data);//只要有一页报错，线路中断，就不要继续了
           return;
@@ -215,14 +216,16 @@ class XbrSearch {
     required List<LatLng> wayPoints,
     int? drivingMode,
     TruckInfo? truckInfo,
-    bool simpyJson = true,//简化json：只返回 第一线路点信息及其时间+距离
+    int? showFields,//ShowFields.
+    bool onlyOne = true,
     RouteResultBack? back,
   }) async {
     final String? jsonStr = await _channel.invokeMethod('truckRouteSearch', {
       "wayPointsJson": json.encode(wayPoints),
       "drivingMode": drivingMode,
       "truckInfoJson": json.encode(truckInfo),
-      "simpyJson": simpyJson,
+      "showFields": showFields,
+      "onlyOne": onlyOne,
     });
     if (jsonStr != null) {
       Map? map = json.decode(jsonStr);
