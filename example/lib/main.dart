@@ -3,6 +3,9 @@ import 'package:xbr_gaode_navi_amap/amap/base/amap_flutter_base.dart';
 import 'package:xbr_gaode_navi_amap/location/xbr_location_service.dart';
 import 'package:xbr_gaode_navi_amap/navi/xbr_navi.dart';
 import 'package:xbr_gaode_navi_amap/xbr_gaode_navi_amap.dart';
+import 'package:xbr_gaode_navi_amap_example/search2_demo.dart';
+import 'package:xbr_gaode_navi_amap_example/search3_demo.dart';
+import 'package:xbr_gaode_navi_amap_example/search_demo.dart';
 
 import 'map_demo.dart';
 
@@ -33,14 +36,16 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class HomePage extends StatefulWidget{
+class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
+
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
   String text = "";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,28 +53,23 @@ class _HomePageState extends State<HomePage> {
         title: const Text('高德全套服务集成'),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
         children: [
           Card(
-            margin: const EdgeInsets.all(12),
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
-                children: [
-                  const SizedBox(
+                children: const [
+                  SizedBox(
                     width: double.infinity,
                     child: Text("* 本插件包含高德套件：高德地图、高德定位、高德检索、高德导航 四个产品，采用高德导航合包，包本身体积较大，"
                         "若没有导航需求，建议使用 xbr_gaode_amap、xbr_gaode_search、xbr_gaode_location 单产品，因为高德只提供合包，"
                         "导航包无法和其他包拆分，使用导航时必须同时提供其他套件，从而衍生此包, 此包除了新增导航外，其他部分与单产品一模一样。"),
                   ),
-                  ElevatedButton(child: const Text("授权检查"), onPressed: () {}),
-                  ElevatedButton(child: const Text("初始化KEY"), onPressed: () {}),
                 ],
               ),
             ),
           ),
           Card(
-            margin: const EdgeInsets.all(12),
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
@@ -78,15 +78,16 @@ class _HomePageState extends State<HomePage> {
                     width: double.infinity,
                     child: Text("地图部分"),
                   ),
-                  ElevatedButton(child: const Text("显示地图"), onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const MapDemoPage()));
-                  })
+                  ElevatedButton(
+                      child: const Text("显示地图"),
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const MapDemoPage()));
+                      })
                 ],
               ),
             ),
           ),
           Card(
-            margin: const EdgeInsets.all(12),
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
@@ -95,15 +96,30 @@ class _HomePageState extends State<HomePage> {
                     width: double.infinity,
                     child: Text("检索部分"),
                   ),
-                  ElevatedButton(child: const Text("关键字"), onPressed: () {}),
-                  ElevatedButton(child: const Text("(逆)地理编码"), onPressed: () {}),
-                  ElevatedButton(child: const Text("线路规划"), onPressed: () {})
+                  Wrap(
+                    spacing: 5, //主轴上子控件的间距
+                    runSpacing: 5, //交叉轴上子控件之间的间距
+                    children: [
+                      ElevatedButton(
+                          child: const Text("关键字"),
+                          onPressed: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const SearchDemoPage()));
+                          }),
+                      ElevatedButton(
+                          child: const Text("周边"),
+                          onPressed: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const Search2DemoPage()));
+                          }),
+                      ElevatedButton(child: const Text("线路规划"), onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const Search3DemoPage()));
+                      })
+                    ], //要显示的子控件集合
+                  ),
                 ],
               ),
             ),
           ),
           Card(
-            margin: const EdgeInsets.all(12),
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
@@ -116,15 +132,23 @@ class _HomePageState extends State<HomePage> {
                     width: double.infinity,
                     child: Text(text),
                   ),
-                  ElevatedButton(child: const Text("获取定位"), onPressed: () {
-                    XbrLocation.instance().execOnceLocation(callback: (locationInfo){
-                      setState(() {
-                        text = locationInfo.toJson().toString();
-                      });
-                    });
-                  }),
-                  ElevatedButton(child: const Text("实时定位"), onPressed: () {}),
-                  ElevatedButton(child: const Text("后台地位（新）"), onPressed: () {}),
+                  Wrap(
+                    spacing: 5, //主轴上子控件的间距
+                    runSpacing: 5, //交叉轴上子控件之间的间距
+                    children: [
+                      ElevatedButton(
+                          child: const Text("获取定位"),
+                          onPressed: () {
+                            XbrLocation.instance().execOnceLocation(callback: (locationInfo) {
+                              setState(() {
+                                text = locationInfo.toJson().toString();
+                              });
+                            });
+                          }),
+                      ElevatedButton(child: const Text("实时定位"), onPressed: () {}),
+                      ElevatedButton(child: const Text("后台地位（新）"), onPressed: () {}),
+                    ], //要显示的子控件集合
+                  ),
                   const SizedBox(
                     width: double.infinity,
                     child: Text("本插件支持后台保活定位，你可以摒弃高德提供的猎鹰终端SDK（坑特别多且不支持保活），您可以在自己服务端配置好猎鹰服务接口，提供轨迹上传接口，"
@@ -138,7 +162,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           Card(
-            margin: const EdgeInsets.all(12),
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
@@ -147,14 +170,16 @@ class _HomePageState extends State<HomePage> {
                     width: double.infinity,
                     child: Text("导航部分"),
                   ),
-                  ElevatedButton(child: const Text("开始导航"), onPressed: () {
-                    XbrNavi.startNavi(points: [
-                      // //为了方便展示,选择了固定的起终点
-                      //     self.startPoint = [AMapNaviPoint locationWithLatitude:39.993135 longitude:116.474175];
-                      //     self.endPoint   = [AMapNaviPoint locationWithLatitude:39.908791 longitude:116.321257];
-                      const LatLng(39.993135,116.474175),const LatLng(39.908791,116.321257),
-                    ],title: "正在前往：基本上界面所有元素都有对应的资源样式和图片，所以大家只需要按照给定的",subtext: "李欣 | 18744925565",emulator:true);
-                  })
+                  ElevatedButton(
+                      child: const Text("开始导航"),
+                      onPressed: () {
+                        XbrNavi.startNavi(points: [
+                          // //为了方便展示,选择了固定的起终点
+                          //     self.startPoint = [AMapNaviPoint locationWithLatitude:39.993135 longitude:116.474175];
+                          //     self.endPoint   = [AMapNaviPoint locationWithLatitude:39.908791 longitude:116.321257];
+                          const LatLng(39.993135, 116.474175), const LatLng(39.908791, 116.321257),
+                        ], title: "正在前往：基本上界面所有元素都有对应的资源样式和图片，所以大家只需要按照给定的", subtext: "李欣 | 18744925565", emulator: true);
+                      })
                 ],
               ),
             ),
