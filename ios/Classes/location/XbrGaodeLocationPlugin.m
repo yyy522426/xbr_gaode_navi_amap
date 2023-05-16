@@ -1,4 +1,4 @@
-#import "AMapFlutterLocationPlugin.h"
+#import "XbrGaodeLocationPlugin.h"
 #import <AMapFoundationKit/AMapFoundationKit.h>
 #import <AMapLocationKit/AMapLocationKit.h>
 #import "AMapFlutterStreamManager.h"
@@ -21,17 +21,13 @@
 }
 @end
 
-
-
-//*定位终端.H**/
-@interface XbrAMapLocationPlugin()<AMapLocationManagerDelegate>
-    //公共属性：定义一个字典集合用于保存所有定位线程
+@interface XbrGaodeLocationPlugin()<AMapLocationManagerDelegate>
     @property (nonatomic, strong) NSMutableDictionary<NSString*, AMapFlutterLocationManager*> *pluginsDict;
 @end
 
 
 /**定位终端**/
-@implementation XbrAMapLocationPlugin
+@implementation XbrGaodeLocationPlugin
 - (instancetype)init {
     if ([super init] == self) {
         _pluginsDict = [[NSMutableDictionary alloc] init];
@@ -41,9 +37,7 @@
 
 /// 方法通道接收
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-    if ([@"getPlatformVersion" isEqualToString:call.method]) {
-        result([@"iOS " stringByAppendingString:[[UIDevice currentDevice] systemVersion]]);
-    } else if ([@"startLocation" isEqualToString:call.method]){
+    if ([@"startLocation" isEqualToString:call.method]){
         [self startLocation:call result:result];
     }else if ([@"stopLocation" isEqualToString:call.method]){
         [self stopLocation:call];
@@ -52,35 +46,8 @@
         [self setLocationOption:call];
     }else if ([@"destroy" isEqualToString:call.method]){
         [self destroyLocation:call];
-    }else if ([@"setApiKey" isEqualToString:call.method]){
-        NSString *apiKey = call.arguments[@"ios"];
-        if (apiKey && [apiKey isKindOfClass:[NSString class]]) {
-            [AMapServices sharedServices].apiKey = apiKey;
-            result(@YES);
-        }else {
-            result(@NO);
-        }
     }else if ([@"getSystemAccuracyAuthorization" isEqualToString:call.method]) {
         [self getSystemAccuracyAuthorization:call result:result];
-    } else if ([@"updatePrivacyStatement" isEqualToString:call.method]) {
-        [self updatePrivacyStatement:call.arguments];
-    } else {
-        result(FlutterMethodNotImplemented);
-    }
-}
-
-///更新隐私合规接口
-- (void)updatePrivacyStatement:(NSDictionary *)arguments {
-    if ((AMapLocationVersionNumber) < 20800) {
-        NSLog(@"当前定位SDK版本没有隐私合规接口，请升级定位SDK到2.8.0及以上版本");
-        return;
-    }
-    if (arguments == nil) return;
-    if (arguments[@"hasContains"] != nil && arguments[@"hasShow"] != nil) {
-        [AMapLocationManager updatePrivacyShow:[arguments[@"hasShow"] integerValue] privacyInfo:[arguments[@"hasContains"] integerValue]];
-    }
-    if (arguments[@"hasAgree"] != nil) {
-        [AMapLocationManager updatePrivacyAgree:[arguments[@"hasAgree"] integerValue]];
     }
 }
 

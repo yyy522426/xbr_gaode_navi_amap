@@ -6,5 +6,6 @@
 
 @property (nonatomic,retain) AMapSearchAPI* search;
 @property (nonatomic,retain) FlutterResult result;
-@property (nonatomic,retain) id simpyJson;
+@property (nonatomic,retain) id onlyOne;
+@property (nonatomic,retain) NSNumber* showFields;
 @end

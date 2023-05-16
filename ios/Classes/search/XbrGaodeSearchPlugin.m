@@ -2,30 +2,17 @@
 #import <objc/runtime.h>
 
 @implementation XbrGaodeSearchPlugin
+- (instancetype)init {
+    if ([super init] == self) {
+        self.search = [[AMapSearchAPI alloc] init];
+        self.search.delegate=(id)self;
+    }
+    return self;
+}
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
     NSDictionary<NSString*, id>* args = call.arguments;
     self.result = result;
-    if(([@"initKey" isEqualToString:call.method])){
-        NSString* apiKey = args[@"apiKey"];
-        [AMapServices sharedServices].apiKey = apiKey;
-        self.search = [[AMapSearchAPI alloc] init];
-        self.search.delegate = (id) self;
-        
-    } else if(([@"updatePrivacyShow" isEqualToString:call.method])){
-        id hasShow = args[@"hasShow"];
-        id hasContains = args[@"hasContains"];
-        if(![hasShow isEqual:[NSNull null]] && ![hasContains isEqual:[NSNull null]]){
-            AMapPrivacyShowStatus showStatus = (BOOL) hasShow?AMapPrivacyShowStatusDidShow:AMapPrivacyShowStatusNotShow;
-            AMapPrivacyInfoStatus infoStatus = (BOOL) hasContains?AMapPrivacyInfoStatusDidContain:AMapPrivacyInfoStatusNotContain;
-            [AMapSearchAPI updatePrivacyShow:showStatus privacyInfo:infoStatus];
-        }
-    }else if(([@"updatePrivacyAgree" isEqualToString:call.method])){
-        id hasAgree = args[@"hasAgree"];
-        if(![hasAgree isEqual:[NSNull null]]){
-            AMapPrivacyAgreeStatus agreeStatus = (BOOL) hasAgree?AMapPrivacyAgreeStatusDidAgree:AMapPrivacyAgreeStatusNotAgree;
-            [AMapSearchAPI updatePrivacyAgree:agreeStatus];
-        }
-    }else if ( ([@"keywordsSearch" isEqualToString:call.method])) {
+    if ( ([@"keywordsSearch" isEqualToString:call.method])) {
         NSString* keyWord = args[@"keyWord"];
         NSString* cityCode = args[@"cityCode"];
         NSNumber* page =args[@"page"];
@@ -46,9 +33,34 @@
         }
         //发送请求
         [self.search AMapPOIKeywordsSearch:request];
-        result(@"SUCCESS");
         
-    } else if ( ([@"getPOIById" isEqualToString:call.method])) {
+    } else if ( ([@"boundSearch" isEqualToString:call.method])) {
+        NSString* pointJson = args[@"pointJson"];
+        NSNumber* scope = args[@"scope"];
+        NSString* keyWord = args[@"keyWord"];
+        NSNumber* page =args[@"page"];
+        NSNumber* limit =args[@"limit"];
+        //JSON转
+        NSData *data = [pointJson dataUsingEncoding:NSUTF8StringEncoding];
+        NSArray<NSNumber *>* point = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+        //构造查询
+        AMapPOIAroundSearchRequest *request = [[AMapPOIAroundSearchRequest alloc] init];
+        request.location            = [AMapGeoPoint locationWithLatitude:point[0].doubleValue longitude:point[1].doubleValue];
+        request.keywords            = keyWord;
+        request.radius               = scope.intValue;
+        //request.requireExtension    = YES;
+        //搜索SDK 3.2.0 中新增加的功能，只搜索本城市的POI
+        //request.requireSubPOIs      = YES;
+        if(![page isEqual:[NSNull null]]){
+            request.page = page.intValue;
+        }
+        if(![limit isEqual:[NSNull null]]){
+            request.offset = limit.intValue;
+        }
+        //发送请求
+        [self.search AMapPOIAroundSearch:request];
+        
+    } else  if ( ([@"getPOIById" isEqualToString:call.method])) {
         NSString* poiId = args[@"id"];
         //构造查询
         AMapPOIIDSearchRequest *request = [[AMapPOIIDSearchRequest alloc] init];
@@ -70,9 +82,10 @@
         //发送请求
         [self.search AMapInputTipsSearch:tips];
     } else if ( ([@"routeSearch" isEqualToString:call.method])) {
-        NSNumber* drivingMode = args[@"drivingMode"];
+        NSNumber* strategy = args[@"strategy"];
         NSString* wayPointsJson = args[@"wayPointsJson"];
-        self.simpyJson = args[@"simpyJson"];
+        self.onlyOne = args[@"onlyOne"];
+        self.showFields = args[@"showFields"];
         //JSON转
         NSData *data = [wayPointsJson dataUsingEncoding:NSUTF8StringEncoding];
         //佣数组来接收
@@ -98,9 +111,21 @@
         //构造高德地图检索请求
         AMapDrivingCalRouteSearchRequest *navi = [[AMapDrivingCalRouteSearchRequest alloc] init];
         //navi.requireExtension = YES;
-        navi.showFieldType = AMapDrivingRouteShowFieldTypePolyline;
-        if(![drivingMode isEqual:[NSNull null]]){
-            navi.strategy = drivingMode.intValue;
+        if (self.showFields!=nil && self.showFields.intValue==16) {//返回坐标点串
+            navi.showFieldType = AMapDrivingRouteShowFieldTypePolyline;
+        }else if(self.showFields!=nil && self.showFields.intValue==1){//返回费用及成本
+            navi.showFieldType = AMapDrivingRouteShowFieldTypeCost;
+        }else if(self.showFields!=nil && self.showFields.intValue==4){//返回导航指令
+            navi.showFieldType = AMapDrivingRouteShowFieldTypeNavi;
+        }else if(self.showFields!=nil && self.showFields.intValue==2){//返回路况详情
+            navi.showFieldType = AMapDrivingRouteShowFieldTypeTmcs;
+        }else if(self.showFields!=nil && self.showFields.intValue==8){//返回途径城市信息
+            navi.showFieldType = AMapDrivingRouteShowFieldTypeCities;
+        }else if(self.showFields!=nil && self.showFields.intValue==-1){//返回所有信息
+            navi.showFieldType = AMapDrivingRouteShowFieldTypeAll;
+        }
+        if(![strategy isEqual:[NSNull null]]){
+            navi.strategy = strategy.intValue;
         }
         navi.origin = origin;
         navi.destination = destination;
@@ -111,7 +136,8 @@
         NSNumber* drivingMode = args[@"drivingMode"];
         NSString* wayPointsJson = args[@"wayPointsJson"];
         NSString* truckInfoJson = args[@"truckInfoJson"];
-        self.simpyJson = args[@"simpyJson"];
+        self.onlyOne = args[@"onlyOne"];
+        self.showFields = args[@"showFields"];
         //JSON转
         NSData *data = [wayPointsJson dataUsingEncoding:NSUTF8StringEncoding];
         NSData *tData = [truckInfoJson dataUsingEncoding:NSUTF8StringEncoding];
@@ -197,9 +223,7 @@
         }
         //发送请求
         [self.search AMapReGoecodeSearch:regeo];
-    }  else {
-        result(FlutterMethodNotImplemented);
-    }
+    } 
 }
 
 /* POI和POI详情 .搜索回调 */
@@ -224,8 +248,7 @@
     NSDictionary* map = @{
         @"code":@1000,
         @"data":@{
-            @"searchSuggestionKeywords":searchSuggestionKeywords,
-            @"searchSuggestionCitys":searchSuggestionCitys,
+            @"count": [NSNumber numberWithInt:(int)response.count],
             @"pois":pois
         }
     };
@@ -240,7 +263,7 @@
 /* 搜索公共错误回调 */
 - (void)AMapSearchRequest:(id)request didFailWithError:(NSError *)error{
     NSDictionary* map = @{
-        @"code":[NSNumber numberWithInt:error.code],
+        @"code":[NSNumber numberWithInt:(int)error.code],
         @"msg":error.domain
     };
     //转 json 字符串
@@ -274,21 +297,29 @@
     //只返回驾车路径信息
     NSArray<AMapPath *>* pathArr = [route paths];
     NSMutableArray<NSDictionary *> *paths = [NSMutableArray arrayWithCapacity:pathArr.count];
-    if (self.simpyJson && pathArr.count>0) {
-        AMapPath* path = pathArr[0];
-        NSDictionary* pathMap = @{
-            @"polyline": path.polyline,
-            @"distance": [NSNumber numberWithDouble:path.distance],
-            @"duration": [NSNumber numberWithDouble:path.duration]
-        };
-        [paths addObject: pathMap];
+    if (self.showFields!=nil && self.showFields.intValue == 16) {
+        for(AMapPath* path in pathArr){
+            NSDictionary* pathMap = @{
+                @"polyline": path.polyline,
+            };
+            [paths addObject: pathMap];
+        }
+    }else if(self.showFields!=nil && self.showFields.intValue == 1){
+        for(AMapPath* path in pathArr){
+            NSDictionary* pathMap = @{
+                @"distance": [NSNumber numberWithDouble:path.distance],
+                @"duration": [NSNumber numberWithDouble:path.duration]
+            };
+            [paths addObject: pathMap];
+        }
     }else{
         for(AMapPath* path in pathArr){
-            //NSString *polyline = [path polyline];
             [paths addObject:[XbrGaodeSearchPlugin getObjectData:path]];
         }
     }
-    
+    if(self.onlyOne && paths.count > 0){
+        paths = @[paths[0]].mutableCopy;
+    }
     //重新构造完成 数据为配合android已调整
     NSDictionary* map = @{
         @"code":@1000,

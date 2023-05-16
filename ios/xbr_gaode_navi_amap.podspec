@@ -17,6 +17,8 @@ include amap,search,location,navi
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
   s.dependency 'AMapNavi'
+  s.dependency 'AMapSearch'
+  s.dependency 'AMapLocation'
   s.platform = :ios, '9.0'
   s.static_framework = true
   # Flutter.framework does not contain a i386 slice.
