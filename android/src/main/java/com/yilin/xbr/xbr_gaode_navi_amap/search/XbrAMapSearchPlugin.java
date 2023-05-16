@@ -103,16 +103,17 @@ public class XbrAMapSearchPlugin {
         //线路规划
         String json = call.argument("wayPointsJson");
         Integer strategy = call.argument("strategy");
-        Boolean simpyJson = call.argument("simpyJson");
+        Boolean onlyOne = call.argument("onlyOne");
+        Integer showFields = call.argument("showFields");
         List<LatLonPoint> wayPoints = new ArrayList<>();
         if (json != null) {
           List<Double[]> mapPoints = GsonUtil.fromJson(json, new TypeToken<List<Double[]>>() {
           });
           wayPoints = coverPoint(mapPoints);
         }
-        if (simpyJson==null) simpyJson = true;
+        if (onlyOne==null) onlyOne = true;
         if (wayPoints.size() >= 2) {
-          getAmapSearchClient().routeSearch(wayPoints, strategy,simpyJson, new SearchBack() {
+          getAmapSearchClient().routeSearch(wayPoints, strategy,showFields,onlyOne, new SearchBack() {
             @Override
             public void back(final int code,final Map<String,Object> map) {
               result.success(GsonUtil.toJson(toResult(code,map)));
@@ -126,7 +127,8 @@ public class XbrAMapSearchPlugin {
         String json = call.argument("wayPointsJson");
         String truckInfoJson = call.argument("truckInfoJson");
         Integer drivingMode = call.argument("drivingMode");
-        Boolean simpyJson = call.argument("simpyJson");
+        Boolean onlyOne = call.argument("onlyOne");
+        Integer showFields = call.argument("showFields");
         List<LatLonPoint> wayPoints = null;
         TruckInfo truckInfo = null;
         if (json != null) {
@@ -136,9 +138,9 @@ public class XbrAMapSearchPlugin {
         if (truckInfoJson != null) {
           truckInfo = GsonUtil.fromJson(truckInfoJson, new TypeToken<TruckInfo>() {});
         }
-        if (simpyJson==null) simpyJson = true;
+        if (onlyOne==null) onlyOne = true;
         if (wayPoints != null && wayPoints.size() >= 2) {
-          getAmapSearchClient().truckRouteSearch(wayPoints, drivingMode, truckInfo,simpyJson, new SearchBack() {
+          getAmapSearchClient().truckRouteSearch(wayPoints, drivingMode, truckInfo,showFields,onlyOne, new SearchBack() {
             @Override
             public void back(final int code,final Map<String,Object> map) {
               result.success(GsonUtil.toJson(toResult(code,map)));
