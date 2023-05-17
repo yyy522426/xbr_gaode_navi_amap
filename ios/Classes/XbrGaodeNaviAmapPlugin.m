@@ -48,7 +48,6 @@
     }else if ([@"keywordsSearch" isEqualToString:call.method] || [@"boundSearch" isEqualToString:call.method]||
               [@"getPOIById" isEqualToString:call.method] ||[@"inputTips" isEqualToString:call.method] ||
               [@"routeSearch" isEqualToString:call.method] ||[@"truckRouteSearch" isEqualToString:call.method] ||
-              [@"costSearch" isEqualToString:call.method] ||[@"truckCostSearch" isEqualToString:call.method] ||
               [@"geocoding" isEqualToString:call.method] ||[@"reGeocoding" isEqualToString:call.method] ){
         if(searchPlugin==nil) searchPlugin = [[XbrGaodeSearchPlugin alloc]init];
         [searchPlugin handleMethodCall:call result:result];

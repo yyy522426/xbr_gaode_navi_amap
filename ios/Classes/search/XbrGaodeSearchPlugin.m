@@ -6,13 +6,12 @@
     if ([super init] == self) {
         self.search = [[AMapSearchAPI alloc] init];
         self.search.delegate=(id)self;
-        self.resultMap = @{};
     }
     return self;
 }
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
     NSDictionary<NSString*, id>* args = call.arguments;
-    self.resultMap[call.method] = result;
+    self.result = result;
     if ( ([@"keywordsSearch" isEqualToString:call.method])) {
         NSString* keyWord = args[@"keyWord"];
         NSString* cityCode = args[@"cityCode"];
@@ -86,6 +85,7 @@
         NSNumber* strategy = args[@"strategy"];
         NSString* wayPointsJson = args[@"wayPointsJson"];
         self.onlyOne = args[@"onlyOne"];
+        self.simplify = args[@"simplify"];
         self.showFields = args[@"showFields"];
         //JSON转
         NSData *data = [wayPointsJson dataUsingEncoding:NSUTF8StringEncoding];
@@ -112,58 +112,12 @@
         //构造高德地图检索请求
         AMapDrivingCalRouteSearchRequest *navi = [[AMapDrivingCalRouteSearchRequest alloc] init];
         //navi.requireExtension = YES;
-        if (self.showFields!=nil && self.showFields.intValue==16) {//返回坐标点串
-            navi.showFieldType = AMapDrivingRouteShowFieldTypePolyline;
-        }else if(self.showFields!=nil && self.showFields.intValue==1){//返回费用及成本
-            navi.showFieldType = AMapDrivingRouteShowFieldTypeCost;
-        }else if(self.showFields!=nil && self.showFields.intValue==4){//返回导航指令
-            navi.showFieldType = AMapDrivingRouteShowFieldTypeNavi;
-        }else if(self.showFields!=nil && self.showFields.intValue==2){//返回路况详情
-            navi.showFieldType = AMapDrivingRouteShowFieldTypeTmcs;
-        }else if(self.showFields!=nil && self.showFields.intValue==8){//返回途径城市信息
-            navi.showFieldType = AMapDrivingRouteShowFieldTypeCities;
-        }else if(self.showFields!=nil && self.showFields.intValue==-1){//返回所有信息
+        if (![self.showFields isEqual:[NSNull null]] && self.showFields.intValue==-1) {
             navi.showFieldType = AMapDrivingRouteShowFieldTypeAll;
+        }else if(![self.showFields isEqual:[NSNull null]] && self.showFields.intValue!=0){
+            //这里的算法是安卓端的两倍，默认传值为安卓端
+            navi.showFieldType = self.showFields.intValue * 2;
         }
-        if(![strategy isEqual:[NSNull null]]){
-            navi.strategy = strategy.intValue;
-        }
-        navi.origin = origin;
-        navi.destination = destination;
-        navi.waypoints = waypoints;
-        //发送请求
-        [self.search AMapDrivingV2RouteSearch:navi];
-    } else if ( ([@"costSearch" isEqualToString:call.method])) {
-        NSNumber* strategy = args[@"strategy"];
-        NSString* wayPointsJson = args[@"wayPointsJson"];
-        self.onlyOne = args[@"onlyOne"];
-        self.showFields = @1;
-        //JSON转
-        NSData *data = [wayPointsJson dataUsingEncoding:NSUTF8StringEncoding];
-        //佣数组来接收
-        NSArray *pointArr = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
-        //点位也是一个数组 起点数组
-        NSArray<NSNumber *>* sp = [pointArr firstObject];
-        //点位也是一个数组 终点 [0-lat,1-lon]
-        NSArray<NSNumber *>* ep = [pointArr lastObject];
-        //起点对象
-        AMapGeoPoint* origin =[AMapGeoPoint locationWithLatitude:sp[0].doubleValue longitude:sp[1].doubleValue];
-        //终点对象
-        AMapGeoPoint* destination =[AMapGeoPoint locationWithLatitude:ep[0].doubleValue longitude:ep[1].doubleValue];
-        //构造途径点对象集合
-        NSMutableArray<AMapGeoPoint *> *waypoints = [NSMutableArray arrayWithCapacity:pointArr.count-2];
-        if (pointArr.count > 2) {
-            //遍历跳开起点和终点
-            for (NSInteger i=1; i<pointArr.count-1;i++) {
-                NSArray<NSNumber *>* wp = [pointArr objectAtIndex:i];
-                AMapGeoPoint* wc =[AMapGeoPoint locationWithLatitude:wp[0].doubleValue longitude:wp[1].doubleValue];
-                [waypoints addObject:wc];
-            }
-        }
-        //构造高德地图检索请求
-        AMapDrivingCalRouteSearchRequest *navi = [[AMapDrivingCalRouteSearchRequest alloc] init];
-        //navi.requireExtension = YES;
-        navi.showFieldType = AMapDrivingRouteShowFieldTypeCost;
         if(![strategy isEqual:[NSNull null]]){
             navi.strategy = strategy.intValue;
         }
@@ -177,6 +131,7 @@
         NSString* wayPointsJson = args[@"wayPointsJson"];
         NSString* truckInfoJson = args[@"truckInfoJson"];
         self.onlyOne = args[@"onlyOne"];
+        self.simplify = args[@"simplify"];
         self.showFields = args[@"showFields"];
         //JSON转
         NSData *data = [wayPointsJson dataUsingEncoding:NSUTF8StringEncoding];
@@ -240,75 +195,7 @@
         
         //发送请求
         [self.search AMapTruckRouteSearch:navi];
-    } else if ( ([@"truckCostSearch" isEqualToString:call.method])) {
-        NSNumber* drivingMode = args[@"drivingMode"];
-        NSString* wayPointsJson = args[@"wayPointsJson"];
-        NSString* truckInfoJson = args[@"truckInfoJson"];
-        self.onlyOne = args[@"onlyOne"];
-        self.showFields = @1;
-        //JSON转
-        NSData *data = [wayPointsJson dataUsingEncoding:NSUTF8StringEncoding];
-        NSData *tData = [truckInfoJson dataUsingEncoding:NSUTF8StringEncoding];
-        //用数组来接收
-        NSArray *pointArr = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
-        //点位也是一个数组 起点数组
-        NSArray<NSNumber *>* sp = [pointArr firstObject];
-        //点位也是一个数组 终点 [0-lat,1-lon]
-        NSArray<NSNumber *>* ep = [pointArr lastObject];
-        //起点对象
-        AMapGeoPoint* origin =[AMapGeoPoint locationWithLatitude:sp[0].doubleValue longitude:sp[1].doubleValue];
-        //终点对象
-        AMapGeoPoint* destination =[AMapGeoPoint locationWithLatitude:ep[0].doubleValue longitude:ep[1].doubleValue];
-        //构造途径点对象集合
-        NSMutableArray<AMapGeoPoint *> *waypoints = [NSMutableArray arrayWithCapacity:pointArr.count-2];
-        if (pointArr.count > 2) {
-            //遍历跳开起点和终点
-            for (NSInteger i=1; i<pointArr.count-1;i++) {
-                NSArray<NSNumber *>* wp = [pointArr objectAtIndex:i];
-                AMapGeoPoint* wc =[AMapGeoPoint locationWithLatitude:wp[0].doubleValue longitude:wp[1].doubleValue];
-                [waypoints addObject:wc];
-            }
-        }
-        //TRUCK用字典接收
-        NSDictionary *truck = [NSJSONSerialization JSONObjectWithData:tData options:NSJSONReadingMutableContainers error:nil];
-        NSString* plateProvince = [truck objectForKey:@"plateProvince"];
-        NSString* plateNumber = [truck objectForKey:@"plateNumber"];
-        NSNumber* width = [truck objectForKey:@"truckWidth"];
-        NSNumber* height = [truck objectForKey:@"truckHeight"];
-        NSNumber* axis = [truck objectForKey:@"truckAxis"];
-        NSNumber* load = [truck objectForKey:@"truckLoad"];
-        NSNumber* weight = [truck objectForKey:@"truckWeight"];
-        //构造高德地图检索请求
-        AMapTruckRouteSearchRequest *navi = [[AMapTruckRouteSearchRequest alloc] init];
-        navi.requireExtension = YES;
-        if(![drivingMode isEqual:[NSNull null]]){
-            navi.strategy = drivingMode.intValue;
-        }
-        navi.origin = origin;
-        navi.destination = destination;
-        navi.waypoints = waypoints;
-        //货车数据
-        navi.plateProvince = plateProvince;
-        navi.plateNumber = plateNumber;
-        if(![width isEqual:[NSNull null]]){
-            navi.width = width.doubleValue;
-        }
-        if(![height isEqual:[NSNull null]]){
-            navi.height = height.doubleValue;
-        }
-        if(![axis isEqual:[NSNull null]]){
-            navi.axis = axis.intValue;
-        }
-        if(![weight isEqual:[NSNull null]]){
-            navi.weight =  weight.doubleValue;
-        }
-        if(![load isEqual:[NSNull null]]){
-            navi.load =  load.doubleValue;
-        }
-        
-        //发送请求
-        [self.search AMapTruckRouteSearch:navi];
-    }else if ( ([@"geocoding" isEqualToString:call.method])) {
+    } else if ( ([@"geocoding" isEqualToString:call.method])) {
         NSString* address = args[@"address"];
         NSString* cityOrAdcode = args[@"cityOrAdcode"];
         //构造查询
@@ -363,14 +250,8 @@
     //转 json 字符串
     NSData* jsonData =[NSJSONSerialization dataWithJSONObject:map options:NSJSONWritingPrettyPrinted error:nil];
     NSString* jsonStr =[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    if (self.resultMap[@"keywordsSearch"] != nil) {
-        ((FlutterResult)self.resultMap[@"keywordsSearch"])(jsonStr);
-    }
-    if (self.resultMap[@"boundSearch"] != nil) {
-        ((FlutterResult)self.resultMap[@"boundSearch"])(jsonStr);
-    }
-    if (self.resultMap[@"getPOIById"] != nil) {
-        ((FlutterResult)self.resultMap[@"getPOIById"])(jsonStr);
+    if (self.result != nil) {
+        self.result(jsonStr);
     }
 }
 
@@ -383,36 +264,7 @@
     //转 json 字符串
     NSData* jsonData =[NSJSONSerialization dataWithJSONObject:map options:NSJSONWritingPrettyPrinted error:nil];
     NSString* jsonStr =[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    if (self.resultMap[@"keywordsSearch"] != nil) {
-        ((FlutterResult)self.resultMap[@"keywordsSearch"])(jsonStr);
-    }
-    if (self.resultMap[@"boundSearch"] != nil) {
-        ((FlutterResult)self.resultMap[@"boundSearch"])(jsonStr);
-    }
-    if (self.resultMap[@"getPOIById"] != nil) {
-        ((FlutterResult)self.resultMap[@"getPOIById"])(jsonStr);
-    }
-    if (self.resultMap[@"inputTips"] != nil) {
-        ((FlutterResult)self.resultMap[@"inputTips"])(jsonStr);
-    }
-    if (self.resultMap[@"routeSearch"] != nil) {
-        ((FlutterResult)self.resultMap[@"routeSearch"])(jsonStr);
-    }
-    if (self.resultMap[@"truckRouteSearch"] != nil) {
-        ((FlutterResult)self.resultMap[@"truckRouteSearch"])(jsonStr);
-    }
-    if (self.resultMap[@"costSearch"] != nil) {
-        ((FlutterResult)self.resultMap[@"costSearch"])(jsonStr);
-    }
-    if (self.resultMap[@"truckCostSearch"] != nil) {
-        ((FlutterResult)self.resultMap[@"truckCostSearch"])(jsonStr);
-    }
-    if (self.resultMap[@"geocoding"] != nil) {
-        ((FlutterResult)self.resultMap[@"geocoding"])(jsonStr);
-    }
-    if (self.resultMap[@"reGeocoding"] != nil) {
-        ((FlutterResult)self.resultMap[@"reGeocoding"])(jsonStr);
-    }
+    self.result(jsonStr);
 }
 
 /* 输入提示回调. */
@@ -431,9 +283,7 @@
     //转 json 字符串
     NSData* jsonData =[NSJSONSerialization dataWithJSONObject:map options:NSJSONWritingPrettyPrinted error:nil];
     NSString* jsonStr =[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    if (self.resultMap[@"inputTips"] != nil) {
-        ((FlutterResult)self.resultMap[@"inputTips"])(jsonStr);
-    }
+    self.result(jsonStr);
 }
 
 /* 路径规划(含货车)搜索回调. AMapDrivingV2RouteSearch*/
@@ -442,21 +292,37 @@
     //只返回驾车路径信息
     NSArray<AMapPath *>* pathArr = [route paths];
     NSMutableArray<NSDictionary *> *paths = [NSMutableArray arrayWithCapacity:pathArr.count];
-    if (self.showFields!=nil && self.showFields.intValue == 16) {
+    //选出三种常用的业务简化数据，增加Flutter访问速度
+    if ([self.showFields isEqual:[NSNull null]] && self.simplify && self.showFields.intValue == 16) {
+        //第一种，只返回线路点
         for(AMapPath* path in pathArr){
             NSDictionary* pathMap = @{
                 @"polyline": path.polyline,
             };
             [paths addObject: pathMap];
         }
-    }else if(self.showFields!=nil && self.showFields.intValue == 1){
+    }else if([self.showFields isEqual:[NSNull null]] && self.simplify && self.showFields.intValue == 1){
+        //第二种，只返回费用信息
         for(AMapPath* path in pathArr){
             NSDictionary* pathMap = @{
                 @"distance": [NSNumber numberWithDouble:path.distance],
                 @"duration": [NSNumber numberWithDouble:path.duration],
                 @"tolls": [NSNumber numberWithDouble:path.tolls],
                 @"tollDistance": [NSNumber numberWithDouble:path.tollDistance],
-                @"totalTrafficLights": [NSNumber numberWithDouble:path.totalTrafficLights],
+                @"totalTrafficLights": [NSNumber numberWithDouble:path.totalTrafficLights]
+            };
+            [paths addObject: pathMap];
+        }
+    }else if([self.showFields isEqual:[NSNull null]] && self.simplify && self.showFields.intValue == 17){
+        //第三种，返回线路+费用信息
+        for(AMapPath* path in pathArr){
+            NSDictionary* pathMap = @{
+                @"polyline": path.polyline,
+                @"distance": [NSNumber numberWithDouble:path.distance],
+                @"duration": [NSNumber numberWithDouble:path.duration],
+                @"tolls": [NSNumber numberWithDouble:path.tolls],
+                @"tollDistance": [NSNumber numberWithDouble:path.tollDistance],
+                @"totalTrafficLights": [NSNumber numberWithDouble:path.totalTrafficLights]
             };
             [paths addObject: pathMap];
         }
@@ -478,18 +344,7 @@
     //转 json 字符串
     NSData* jsonData =[NSJSONSerialization dataWithJSONObject:map options:NSJSONWritingPrettyPrinted error:nil];
     NSString* jsonStr =[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    if (self.resultMap[@"routeSearch"] != nil) {
-        ((FlutterResult)self.resultMap[@"routeSearch"])(jsonStr);
-    }
-    if (self.resultMap[@"truckRouteSearch"] != nil) {
-        ((FlutterResult)self.resultMap[@"truckRouteSearch"])(jsonStr);
-    }
-    if (self.resultMap[@"costSearch"] != nil) {
-        ((FlutterResult)self.resultMap[@"costSearch"])(jsonStr);
-    }
-    if (self.resultMap[@"truckCostSearch"] != nil) {
-        ((FlutterResult)self.resultMap[@"truckCostSearch"])(jsonStr);
-    }
+    self.result(jsonStr);
 }
 
 /* 地理编码*/
@@ -509,9 +364,7 @@
     //转 json 字符串
     NSData* jsonData =[NSJSONSerialization dataWithJSONObject:map options:NSJSONWritingPrettyPrinted error:nil];
     NSString* jsonStr =[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    if (self.resultMap[@"geocoding"] != nil) {
-        ((FlutterResult)self.resultMap[@"geocoding"])(jsonStr);
-    }
+    self.result(jsonStr);
 }
 
 /* 逆地理编码回调. */
@@ -528,9 +381,7 @@
     //转 json 字符串
     NSData* jsonData =[NSJSONSerialization dataWithJSONObject:map options:NSJSONWritingPrettyPrinted error:nil];
     NSString* jsonStr =[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    if (self.resultMap[@"reGeocoding"] != nil) {
-        ((FlutterResult)self.resultMap[@"reGeocoding"])(jsonStr);
-    }
+    self.result(jsonStr);
 }
 
 //转NSMutableDictionary

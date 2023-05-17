@@ -21,7 +21,6 @@ typedef ReGeocodingResultBack = Function(int? code, ReGeocodingResult data);
 class XbrSearch {
 
   static const MethodChannel _channel = XbrGaodeNaviAmap.channel;
-  static const Map<String,Function> searchMap = <String,Function> {};
 
   ///关键词POI
   static Future<void> keywordsSearch({
@@ -109,12 +108,13 @@ class XbrSearch {
     }
   }
 
-  ///线路规划
+  ///线路规划 默认返回线路+费用（过路费+时间+距离..）
   static Future<void> routeSearch({
     required List<LatLng> wayPoints,
     int? strategy ,
-    int? showFields = ShowFields.POLINE,//ShowFields.
-    bool onlyOne = true,
+    int? showFields = ShowFields.POLINE + ShowFields.COST,//ShowFields.
+    bool onlyOne = true,//只返回第一条线路
+    bool simplify = true,//简化数据
     RouteResultBack? back,
   }) async {
     final String? jsonStr = await _channel.invokeMethod('routeSearch', {
@@ -122,6 +122,7 @@ class XbrSearch {
       "strategy": strategy??DrivingStrategy.DEFAULT,
       "showFields": showFields,
       "onlyOne": onlyOne,
+      "simplify":simplify,
     });
     if (jsonStr != null) {
       Map? map = json.decode(jsonStr);
@@ -131,33 +132,14 @@ class XbrSearch {
     }
   }
 
-  ///线路费用计算
-  static Future<void> costSearch({
-    required List<LatLng> wayPoints,
-    int? strategy ,
-    bool onlyOne = true,
-    RouteResultBack? back,
-  }) async {
-    final String? jsonStr = await _channel.invokeMethod('costSearch', {
-      "wayPointsJson": json.encode(wayPoints),
-      "strategy": strategy??DrivingStrategy.DEFAULT,
-      "onlyOne": onlyOne,
-    });
-    if (jsonStr != null) {
-      Map? map = json.decode(jsonStr);
-      if (map != null && back != null) {
-        back(map['code'] as int, RouteResult.fromJson(map["data"]));
-      }
-    }
-  }
-
-  ///线路规划 truck
+  ///线路规划 truck 默认返回线路+费用（过路费+时间+距离..）
   static Future<void> truckRouteSearch({
     required List<LatLng> wayPoints,
     int? drivingMode,
     TruckInfo? truckInfo,
-    int? showFields = ShowFields.POLINE,//ShowFields.
-    bool onlyOne = true,
+    int? showFields = ShowFields.POLINE + ShowFields.COST,//ShowFields.
+    bool onlyOne = true,//只返回第一条线路
+    bool simplify = true,//简化数据
     RouteResultBack? back,
   }) async {
     final String? jsonStr = await _channel.invokeMethod('truckRouteSearch', {
@@ -166,28 +148,7 @@ class XbrSearch {
       "truckInfoJson": json.encode(truckInfo),
       "showFields": showFields,
       "onlyOne": onlyOne,
-    });
-    if (jsonStr != null) {
-      Map? map = json.decode(jsonStr);
-      if (map != null && back != null) {
-        back(map['code'] as int, RouteResult.fromJson(map["data"]));
-      }
-    }
-  }
-
-  ///线路费用计算 truck
-  static Future<void> truckCostSearch({
-    required List<LatLng> wayPoints,
-    int? drivingMode,
-    TruckInfo? truckInfo,
-    bool onlyOne = true,
-    RouteResultBack? back,
-  }) async {
-    final String? jsonStr = await _channel.invokeMethod('truckCostSearch', {
-      "wayPointsJson": json.encode(wayPoints),
-      "drivingMode": drivingMode,
-      "truckInfoJson": json.encode(truckInfo),
-      "onlyOne": onlyOne,
+      "simplify":simplify,
     });
     if (jsonStr != null) {
       Map? map = json.decode(jsonStr);

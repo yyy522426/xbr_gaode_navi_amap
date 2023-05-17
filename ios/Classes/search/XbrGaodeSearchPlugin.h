@@ -5,7 +5,8 @@
 @interface XbrGaodeSearchPlugin : NSObject<FlutterPlugin>
 
 @property (nonatomic,retain) AMapSearchAPI* search;
-@property (nonatomic,retain) id resultMap;
+@property (nonatomic,retain) FlutterResult result;
 @property (nonatomic,retain) id onlyOne;
+@property (nonatomic,retain) id simplify;
 @property (nonatomic,retain) NSNumber* showFields;
 @end

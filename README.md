@@ -39,7 +39,7 @@
 
 ​	（3）简化了定位回调，使用：XbrLocation.instance().execOnceLocation(callback:... ) 和 XbrLocation.instance().startTimeLocation(callback:... )
 
-​	（4）增加后后台保活定位，使用：XbrLocation.instance().startTimeLocation(callback:...,backgroundService:true ),一个程序仅允许一个保活定位进程
+​	（4）增加后后台保活定位
 
 3.地图功能做了以下调整
 
@@ -170,7 +170,7 @@
 
    (1).线路规划
    ```dart
-    AmapSearchUtil.routePlanning(
+    SearchUtil.routePlanning(
          wayPoints: list, //第一个为起点，最后一个为终点，中间为途径点,支持无限个点
          callBack: (code, linePoints, bounds) {
                //code 1000为成功
@@ -196,7 +196,7 @@
      )
    //注意上面方法只返回：第一条线路的坐标点串
    //若需要返回其他信息，请使用
-   XbrSearch.routeSearchPage(wayPoints,strategy,showFields); 
+   SearchUtil.routeSearchPage(wayPoints,strategy,showFields);
    //或
    XbrSearch.routeSearch(wayPoints,strategy,showFields,onlyOne);
    //前者支持无限个点（自动分页），后者最大支持8个点（起终点+6途经点）
@@ -205,14 +205,21 @@
    //onlyOne：前者已默认true,后者可自定义，只返回一条最优路线。 
    
    //货车线路规划
-   XbrSearch.truckRouteSearchPage();
+   SearchUtil.truckRouteSearchPage();
    XbrSearch.truckRouteSearch();
    //drivingMode不等于strategy：在DrivingMode中已定义
    ```
    (2).算路
    ```dart
-   routeCalculate(wayPoints, strategy, calculateBack});
-   //只返回：时间和距离，wayPoints支持无限个点
+   //线路规划时选择需要返回的字段
+   //showFields = 1 ：只返回时间、距离及费用
+   //showFields = 2 ：只返回交通信息
+   //showFields = 4 ：只返回返回导航信息
+   //showFields = 8 ：返回沿路城市
+   //showFields = 16 ：返回规划线路点串
+   //可以将上面相加返回合并信息：
+        如 1+16=17：返回时间、距离及费用+返回规划线路点串
+        如 1+4+16=21：返回时间、距离及费用+导航信息+返回规划线路点串
    ```
    (3).关键字检索
    ```dart
