@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:xbr_gaode_navi_amap/_core/show_fields.dart';
 import 'package:xbr_gaode_navi_amap/amap/amap_widget.dart';
 import 'package:xbr_gaode_navi_amap/amap/base/amap_flutter_base.dart';
 import 'package:xbr_gaode_navi_amap/amap/core/xbr_ui_controller.dart';
@@ -6,6 +7,7 @@ import 'package:xbr_gaode_navi_amap/amap/map/amap_flutter_map.dart';
 import 'package:xbr_gaode_navi_amap/amap/map/src/types/camera.dart';
 import 'package:xbr_gaode_navi_amap/search/entity/route_result.dart';
 import 'package:xbr_gaode_navi_amap/search/utils/amap_search_util.dart';
+import 'package:xbr_gaode_navi_amap/search/xbr_search.dart';
 
 class Search3DemoPage extends StatefulWidget {
   const Search3DemoPage({Key? key}) : super(key: key);
@@ -39,7 +41,7 @@ class _SearchDemoPageState extends State<Search3DemoPage> {
                 "back：返回方法(code,data){}\n"
                 "\n"
                 "本方法理论上支持无限个点，内置自动分页查询，只返回最佳线路坐标导航点，若要返回时间距离请使用："
-                "routeCalculate(wayPoints, strategy,calculateBack)，通知支持无限个点，但只返回时间，"
+                "routeCalculate(wayPoints, strategy,calculateBack)，也支持无限个点，但只返回时间。"
                 "您也可以直接使用XbrSearch.routeSearch(未分页,不得超过8个点)和XbrSearch.routeSearchPage(可以无限个点)两个方法，"
                 "使用 showFields 可以设定返回数据，showFields在ShowFields类中已定义，onlyOne设为true后只返回最优路线"),
           ),
@@ -48,22 +50,28 @@ class _SearchDemoPageState extends State<Search3DemoPage> {
             child: ElevatedButton(
               child: const Text("开始规划"),
               onPressed: () {
-                AmapSearchUtil.routePlanningDraw(
-                  itemList: [
-                    PlanItem(latLng: const LatLng(26.628053, 106.728491)),
-                    PlanItem(latLng: const LatLng(26.641709, 106.618799)),
-                    PlanItem(latLng: const LatLng(26.262701, 106.794224)),
-                    PlanItem(latLng: const LatLng(26.641709, 106.445064)),
-                    PlanItem(latLng: const LatLng(25.91852, 106.618799)),
-                    PlanItem(latLng: const LatLng(25.920063, 106.651745)),
-                    PlanItem(latLng: const LatLng(25.905858, 106.720409)),
-                    PlanItem(latLng: const LatLng(25.83728, 106.5975)),
-                    PlanItem(latLng: const LatLng(25.66504, 106.70702)),
-                    PlanItem(latLng: const LatLng(25.180703, 106.999531)),
-                  ],
-                  uiController: uiController,
-                  mapController: mapController!,
-                );
+                // AmapSearchUtil.routePlanningDraw(
+                //   itemList: [
+                //     PlanItem(latLng: const LatLng(26.628053, 106.728491)),
+                //     PlanItem(latLng: const LatLng(26.641709, 106.618799)),
+                //     PlanItem(latLng: const LatLng(26.262701, 106.794224)),
+                //     PlanItem(latLng: const LatLng(26.641709, 106.445064)),
+                //     PlanItem(latLng: const LatLng(25.91852, 106.618799)),
+                //     PlanItem(latLng: const LatLng(25.920063, 106.651745)),
+                //     PlanItem(latLng: const LatLng(25.905858, 106.720409)),
+                //     PlanItem(latLng: const LatLng(25.83728, 106.5975)),
+                //     PlanItem(latLng: const LatLng(25.66504, 106.70702)),
+                //     PlanItem(latLng: const LatLng(25.180703, 106.999531)),
+                //   ],
+                //   uiController: uiController,
+                //   mapController: mapController!,
+                // );
+                XbrSearch.routeSearch(wayPoints: [const LatLng(26.628053, 106.728491),const LatLng(26.641709, 106.618799)],back: (code,data){
+                  debugPrint(data.paths![0].polyline);
+                });
+                XbrSearch.costSearch(wayPoints: [const LatLng(26.628053, 106.728491),const LatLng(26.641709, 106.618799)],back: (code,data){
+                  debugPrint("${data.paths![0].duration}--${data.paths![0].distance}");
+                });
               },
             ),
           ),

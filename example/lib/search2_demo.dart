@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:xbr_gaode_navi_amap/amap/base/amap_flutter_base.dart';
-import 'dart:math' as math;
 import 'package:xbr_gaode_navi_amap/search/entity/poi_result.dart';
 import 'package:xbr_gaode_navi_amap/search/xbr_search.dart';
 

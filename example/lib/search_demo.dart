@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:xbr_gaode_navi_amap/amap/amap_widget.dart';
-import 'package:xbr_gaode_navi_amap/amap/base/amap_flutter_base.dart';
-import 'package:xbr_gaode_navi_amap/amap/map/src/types/camera.dart';
-import 'package:xbr_gaode_navi_amap/amap/map/src/types/ui.dart';
 import 'package:xbr_gaode_navi_amap/search/xbr_search.dart';
 
 class SearchDemoPage extends StatefulWidget {
