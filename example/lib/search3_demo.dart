@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:xbr_gaode_navi_amap/_core/show_fields.dart';
 import 'package:xbr_gaode_navi_amap/amap/amap_widget.dart';
 import 'package:xbr_gaode_navi_amap/amap/base/amap_flutter_base.dart';
 import 'package:xbr_gaode_navi_amap/amap/core/xbr_ui_controller.dart';
 import 'package:xbr_gaode_navi_amap/amap/map/amap_flutter_map.dart';
 import 'package:xbr_gaode_navi_amap/amap/map/src/types/camera.dart';
 import 'package:xbr_gaode_navi_amap/search/entity/route_result.dart';
-import 'package:xbr_gaode_navi_amap/search/utils/amap_search_util.dart';
-import 'package:xbr_gaode_navi_amap/search/xbr_search.dart';
+import 'package:xbr_gaode_navi_amap/search/utils/search_util.dart';
 
 class Search3DemoPage extends StatefulWidget {
   const Search3DemoPage({Key? key}) : super(key: key);
@@ -50,28 +48,28 @@ class _SearchDemoPageState extends State<Search3DemoPage> {
             child: ElevatedButton(
               child: const Text("开始规划"),
               onPressed: () {
-                // AmapSearchUtil.routePlanningDraw(
-                //   itemList: [
-                //     PlanItem(latLng: const LatLng(26.628053, 106.728491)),
-                //     PlanItem(latLng: const LatLng(26.641709, 106.618799)),
-                //     PlanItem(latLng: const LatLng(26.262701, 106.794224)),
-                //     PlanItem(latLng: const LatLng(26.641709, 106.445064)),
-                //     PlanItem(latLng: const LatLng(25.91852, 106.618799)),
-                //     PlanItem(latLng: const LatLng(25.920063, 106.651745)),
-                //     PlanItem(latLng: const LatLng(25.905858, 106.720409)),
-                //     PlanItem(latLng: const LatLng(25.83728, 106.5975)),
-                //     PlanItem(latLng: const LatLng(25.66504, 106.70702)),
-                //     PlanItem(latLng: const LatLng(25.180703, 106.999531)),
-                //   ],
-                //   uiController: uiController,
-                //   mapController: mapController!,
-                // );
-                XbrSearch.routeSearch(wayPoints: [const LatLng(26.628053, 106.728491),const LatLng(26.641709, 106.618799)],back: (code,data){
-                  debugPrint(data.paths![0].polyline);
-                });
-                XbrSearch.costSearch(wayPoints: [const LatLng(26.628053, 106.728491),const LatLng(26.641709, 106.618799)],back: (code,data){
-                  debugPrint("${data.paths![0].duration}--${data.paths![0].distance}");
-                });
+                SearchUtil.routePlanningDraw(
+                  itemList: [
+                    PlanItem(latLng: const LatLng(26.628053, 106.728491)),
+                    PlanItem(latLng: const LatLng(26.641709, 106.618799)),
+                    PlanItem(latLng: const LatLng(26.262701, 106.794224)),
+                    PlanItem(latLng: const LatLng(26.641709, 106.445064)),
+                    PlanItem(latLng: const LatLng(25.91852, 106.618799)),
+                    PlanItem(latLng: const LatLng(25.920063, 106.651745)),
+                    PlanItem(latLng: const LatLng(25.905858, 106.720409)),
+                    PlanItem(latLng: const LatLng(25.83728, 106.5975)),
+                    PlanItem(latLng: const LatLng(25.66504, 106.70702)),
+                    PlanItem(latLng: const LatLng(25.180703, 106.999531)),
+                  ],
+                  uiController: uiController,
+                  mapController: mapController!,
+                );
+                // XbrSearch.routeSearch(wayPoints: [const LatLng(26.628053, 106.728491),const LatLng(26.641709, 106.618799)],back: (code,data){
+                //   debugPrint(data.paths![0].polyline);
+                // });
+                // XbrSearch.costSearch(wayPoints: [const LatLng(26.628053, 106.728491),const LatLng(26.641709, 106.618799)],back: (code,data){
+                //   debugPrint("${data.paths![0].duration}--${data.paths![0].distance}");
+                // });
               },
             ),
           ),
