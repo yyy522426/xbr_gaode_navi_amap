@@ -122,6 +122,7 @@ public class XbrGaodeNaviAmapPlugin implements FlutterPlugin, ActivityAware, Met
       case "routeSearch":
       case "truckRouteSearch":
       case "geocoding":
+      case "reGeocoding":
         getSearchPlugin().onMethodCall(call,result);
         break;
       default:

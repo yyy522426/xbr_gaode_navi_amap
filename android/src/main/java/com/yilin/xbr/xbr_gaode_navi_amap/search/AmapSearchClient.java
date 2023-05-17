@@ -252,7 +252,12 @@ public class AmapSearchClient {
                         for (DrivePathV2 drivePath:drivePaths){
                             Map<String,Object> pathMap = new HashMap<>();
                             pathMap.put("distance",drivePath.getDistance());
-                            pathMap.put("duration",drivePath.getCost().getDuration());
+                            if (drivePath.getCost()!=null){
+                                pathMap.put("tolls",drivePath.getCost().getTolls());
+                                pathMap.put("duration",drivePath.getCost().getDuration());
+                                pathMap.put("tollDistance",drivePath.getCost().getTollDistance());
+                                pathMap.put("totalTrafficLights",drivePath.getCost().getTrafficLights());
+                            }
                             paths.add(pathMap);
                         }
                     } else {
@@ -361,8 +366,10 @@ public class AmapSearchClient {
                 } else if (showFields!=null &&  RouteSearchV2.ShowFields.COST == showFields){
                     for (TruckPath drivePath:drivePaths){
                         Map<String,Object> pathMap = new HashMap<>();
-                        pathMap.put("distance",drivePath.getDistance());
+                        pathMap.put("tolls",drivePath.getTolls());
                         pathMap.put("duration",drivePath.getDuration());
+                        pathMap.put("tollDistance",drivePath.getTollDistance());
+                        pathMap.put("totalTrafficLights",drivePath.getTotalTrafficlights());
                         paths.add(pathMap);
                     }
                 } else {

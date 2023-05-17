@@ -5,6 +5,8 @@ import android.app.Activity;
 import androidx.annotation.NonNull;
 import com.amap.api.services.core.LatLonPoint;
 import com.amap.api.services.core.ServiceSettings;
+import com.amap.api.services.poisearch.PoiSearchV2;
+import com.amap.api.services.route.RouteSearchV2;
 import com.google.gson.reflect.TypeToken;
 import com.yilin.xbr.xbr_gaode_navi_amap.search.core.TruckInfo;
 import com.yilin.xbr.xbr_gaode_navi_amap._code.GsonUtil;
@@ -108,13 +110,33 @@ public class XbrAMapSearchPlugin {
         Integer showFields = call.argument("showFields");
         List<LatLonPoint> wayPoints = new ArrayList<>();
         if (json != null) {
-          List<Double[]> mapPoints = GsonUtil.fromJson(json, new TypeToken<List<Double[]>>() {
-          });
+          List<Double[]> mapPoints = GsonUtil.fromJson(json, new TypeToken<List<Double[]>>() {});
           wayPoints = coverPoint(mapPoints);
         }
         if (onlyOne==null) onlyOne = true;
         if (wayPoints.size() >= 2) {
           getAmapSearchClient().routeSearch(wayPoints, strategy,showFields,onlyOne, new SearchBack() {
+            @Override
+            public void back(final int code,final Map<String,Object> map) {
+              result.success(GsonUtil.toJson(toResult(code,map)));
+            }
+          });
+        }
+        break;
+      }
+      case "costSearch": {
+        //线路规划
+        String json = call.argument("wayPointsJson");
+        Integer strategy = call.argument("strategy");
+        Boolean onlyOne = call.argument("onlyOne");
+        List<LatLonPoint> wayPoints = new ArrayList<>();
+        if (json != null) {
+          List<Double[]> mapPoints = GsonUtil.fromJson(json, new TypeToken<List<Double[]>>() {});
+          wayPoints = coverPoint(mapPoints);
+        }
+        if (onlyOne==null) onlyOne = true;
+        if (wayPoints.size() >= 2) {
+          getAmapSearchClient().routeSearch(wayPoints, strategy, RouteSearchV2.ShowFields.COST,onlyOne, new SearchBack() {
             @Override
             public void back(final int code,final Map<String,Object> map) {
               result.success(GsonUtil.toJson(toResult(code,map)));
@@ -142,6 +164,32 @@ public class XbrAMapSearchPlugin {
         if (onlyOne==null) onlyOne = true;
         if (wayPoints != null && wayPoints.size() >= 2) {
           getAmapSearchClient().truckRouteSearch(wayPoints, drivingMode, truckInfo,showFields,onlyOne, new SearchBack() {
+            @Override
+            public void back(final int code,final Map<String,Object> map) {
+              result.success(GsonUtil.toJson(toResult(code,map)));
+            }
+          });
+        }
+        break;
+      }
+      case "truckCostSearch": {
+        //线路规划 --货车
+        String json = call.argument("wayPointsJson");
+        String truckInfoJson = call.argument("truckInfoJson");
+        Integer drivingMode = call.argument("drivingMode");
+        Boolean onlyOne = call.argument("onlyOne");
+        List<LatLonPoint> wayPoints = null;
+        TruckInfo truckInfo = null;
+        if (json != null) {
+          List<Double[]> mapPoints = GsonUtil.fromJson(json, new TypeToken<List<Double[]>>() {});
+          wayPoints = coverPoint(mapPoints);
+        }
+        if (truckInfoJson != null) {
+          truckInfo = GsonUtil.fromJson(truckInfoJson, new TypeToken<TruckInfo>() {});
+        }
+        if (onlyOne==null) onlyOne = true;
+        if (wayPoints != null && wayPoints.size() >= 2) {
+          getAmapSearchClient().truckRouteSearch(wayPoints, drivingMode, truckInfo,RouteSearchV2.ShowFields.COST,onlyOne, new SearchBack() {
             @Override
             public void back(final int code,final Map<String,Object> map) {
               result.success(GsonUtil.toJson(toResult(code,map)));
