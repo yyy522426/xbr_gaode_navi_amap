@@ -230,27 +230,41 @@ public class AmapSearchClient {
         return routeSearchV2;
     }
 
-    public void routeSearch(List<LatLonPoint> wayPoints, Integer drivingStrategy, Integer showFields,boolean onlyOne, final SearchBack searchBack) {
+    public void routeSearch(List<LatLonPoint> wayPoints, Integer drivingStrategy, Integer showFields,boolean onlyOne,boolean simplify, final SearchBack searchBack) {
         try {
             RouteSearchV2.DrivingStrategy strategy = RouteSearchV2.DrivingStrategy.fromValue(drivingStrategy);
             RouteSearchV2.FromAndTo fromAndTo = new RouteSearchV2.FromAndTo(wayPoints.get(0),wayPoints.get(wayPoints.size()-1));
             RouteSearchV2.DriveRouteQuery query = new RouteSearchV2.DriveRouteQuery(fromAndTo,strategy,wayPoints,null,null);
-            if (showFields!=null) query.setShowFields(showFields);
+            if (showFields!=null) query.setShowFields(17);
             getRouteSearchV2().setRouteSearchListener(new DriveRouteSearchListener() {
                 @Override
                 public void onDriveRouteSearched(DriveRouteResultV2 driveRouteResult, int code) {
                     Map<String,Object> map = new HashMap<>();
                     List<DrivePathV2> drivePaths = driveRouteResult.getPaths();
                     List<Map<String,Object>> paths = new ArrayList<>();
-                    if (showFields!=null && RouteSearchV2.ShowFields.POLINE == showFields ){
+                    //选出三种常用业务简化数据
+                    if (showFields!=null && simplify && RouteSearchV2.ShowFields.POLINE == showFields ){
                         for (DrivePathV2 drivePath:drivePaths){
                             Map<String,Object> pathMap = new HashMap<>();
                             pathMap.put("polyline",LatLngUtil.objListJoin(drivePath.getPolyline()));
                             paths.add(pathMap);
                         }
-                    } else if (showFields!=null &&  RouteSearchV2.ShowFields.COST == showFields){
+                    } else if (showFields!=null && simplify &&  RouteSearchV2.ShowFields.COST == showFields){
                         for (DrivePathV2 drivePath:drivePaths){
                             Map<String,Object> pathMap = new HashMap<>();
+                            pathMap.put("distance",drivePath.getDistance());
+                            if (drivePath.getCost()!=null){
+                                pathMap.put("tolls",drivePath.getCost().getTolls());
+                                pathMap.put("duration",drivePath.getCost().getDuration());
+                                pathMap.put("tollDistance",drivePath.getCost().getTollDistance());
+                                pathMap.put("totalTrafficLights",drivePath.getCost().getTrafficLights());
+                            }
+                            paths.add(pathMap);
+                        }
+                    }  else if (showFields!=null && simplify && (RouteSearchV2.ShowFields.COST+RouteSearchV2.ShowFields.POLINE) == showFields){
+                        for (DrivePathV2 drivePath:drivePaths){
+                            Map<String,Object> pathMap = new HashMap<>();
+                            pathMap.put("polyline",LatLngUtil.objListJoin(drivePath.getPolyline()));
                             pathMap.put("distance",drivePath.getDistance());
                             if (drivePath.getCost()!=null){
                                 pathMap.put("tolls",drivePath.getCost().getTolls());
@@ -345,14 +359,15 @@ public class AmapSearchClient {
         return routeSearch;
     }
 
-    public void truckRouteSearch(List<LatLonPoint> wayPoints, Integer truckMode, TruckInfo truckInfo, Integer showFields,boolean onlyOne, final SearchBack searchBack) {
+    public void truckRouteSearch(List<LatLonPoint> wayPoints, Integer truckMode, TruckInfo truckInfo, Integer showFields,boolean onlyOne,boolean simplify, final SearchBack searchBack) {
         try {
             RouteSearch.TruckRouteQuery query = new DriveRouteQuery(wayPoints, truckMode).build(truckInfo);
             getRouteSearch().setOnTruckRouteSearchListener((truckRouteRestult, code) -> {
                 Map<String,Object> map = new HashMap<>();
                 List<TruckPath> drivePaths = truckRouteRestult.getPaths();
                 List<Map<String,Object>> paths = new ArrayList<>();
-                if (showFields!=null && RouteSearchV2.ShowFields.POLINE == showFields ){
+                //选出三种常用业务简化数据
+                if (showFields!=null && simplify && RouteSearchV2.ShowFields.POLINE == showFields ){
                     for (TruckPath truckPath:drivePaths){
                         Map<String,Object> pathMap = new HashMap<>();
                         StringBuilder polylineStr = new StringBuilder();
@@ -363,13 +378,28 @@ public class AmapSearchClient {
                         pathMap.put("polyline",polylineStr.toString());
                         paths.add(pathMap);
                     }
-                } else if (showFields!=null &&  RouteSearchV2.ShowFields.COST == showFields){
+                } else if (showFields!=null && simplify &&  RouteSearchV2.ShowFields.COST == showFields){
                     for (TruckPath drivePath:drivePaths){
                         Map<String,Object> pathMap = new HashMap<>();
                         pathMap.put("tolls",drivePath.getTolls());
                         pathMap.put("duration",drivePath.getDuration());
                         pathMap.put("tollDistance",drivePath.getTollDistance());
                         pathMap.put("totalTrafficLights",drivePath.getTotalTrafficlights());
+                        paths.add(pathMap);
+                    }
+                }  else if (showFields!=null && simplify &&  (RouteSearchV2.ShowFields.POLINE+RouteSearchV2.ShowFields.COST) == showFields){
+                    for (TruckPath truckPath:drivePaths){
+                        Map<String,Object> pathMap = new HashMap<>();
+                        StringBuilder polylineStr = new StringBuilder();
+                        for (int i=0;i<truckPath.getSteps().size();i++){
+                            polylineStr.append(LatLngUtil.objListJoin(truckPath.getSteps().get(i).getPolyline()));
+                            if (i<truckPath.getSteps().size()-1) polylineStr.append(";");
+                        }
+                        pathMap.put("polyline",polylineStr.toString());
+                        pathMap.put("tolls",truckPath.getTolls());
+                        pathMap.put("duration",truckPath.getDuration());
+                        pathMap.put("tollDistance",truckPath.getTollDistance());
+                        pathMap.put("totalTrafficLights",truckPath.getTotalTrafficlights());
                         paths.add(pathMap);
                     }
                 } else {

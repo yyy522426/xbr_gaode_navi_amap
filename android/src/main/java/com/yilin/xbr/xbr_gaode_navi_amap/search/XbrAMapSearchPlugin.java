@@ -107,6 +107,7 @@ public class XbrAMapSearchPlugin {
         String json = call.argument("wayPointsJson");
         Integer strategy = call.argument("strategy");
         Boolean onlyOne = call.argument("onlyOne");
+        Boolean simplify = call.argument("simplify");
         Integer showFields = call.argument("showFields");
         List<LatLonPoint> wayPoints = new ArrayList<>();
         if (json != null) {
@@ -114,29 +115,9 @@ public class XbrAMapSearchPlugin {
           wayPoints = coverPoint(mapPoints);
         }
         if (onlyOne==null) onlyOne = true;
+        if (simplify==null) simplify = true;
         if (wayPoints.size() >= 2) {
-          getAmapSearchClient().routeSearch(wayPoints, strategy,showFields,onlyOne, new SearchBack() {
-            @Override
-            public void back(final int code,final Map<String,Object> map) {
-              result.success(GsonUtil.toJson(toResult(code,map)));
-            }
-          });
-        }
-        break;
-      }
-      case "costSearch": {
-        //线路规划
-        String json = call.argument("wayPointsJson");
-        Integer strategy = call.argument("strategy");
-        Boolean onlyOne = call.argument("onlyOne");
-        List<LatLonPoint> wayPoints = new ArrayList<>();
-        if (json != null) {
-          List<Double[]> mapPoints = GsonUtil.fromJson(json, new TypeToken<List<Double[]>>() {});
-          wayPoints = coverPoint(mapPoints);
-        }
-        if (onlyOne==null) onlyOne = true;
-        if (wayPoints.size() >= 2) {
-          getAmapSearchClient().routeSearch(wayPoints, strategy, RouteSearchV2.ShowFields.COST,onlyOne, new SearchBack() {
+          getAmapSearchClient().routeSearch(wayPoints, strategy,showFields,onlyOne,simplify, new SearchBack() {
             @Override
             public void back(final int code,final Map<String,Object> map) {
               result.success(GsonUtil.toJson(toResult(code,map)));
@@ -151,6 +132,7 @@ public class XbrAMapSearchPlugin {
         String truckInfoJson = call.argument("truckInfoJson");
         Integer drivingMode = call.argument("drivingMode");
         Boolean onlyOne = call.argument("onlyOne");
+        Boolean simplify = call.argument("simplify");
         Integer showFields = call.argument("showFields");
         List<LatLonPoint> wayPoints = null;
         TruckInfo truckInfo = null;
@@ -162,34 +144,9 @@ public class XbrAMapSearchPlugin {
           truckInfo = GsonUtil.fromJson(truckInfoJson, new TypeToken<TruckInfo>() {});
         }
         if (onlyOne==null) onlyOne = true;
+        if (simplify==null) simplify = true;
         if (wayPoints != null && wayPoints.size() >= 2) {
-          getAmapSearchClient().truckRouteSearch(wayPoints, drivingMode, truckInfo,showFields,onlyOne, new SearchBack() {
-            @Override
-            public void back(final int code,final Map<String,Object> map) {
-              result.success(GsonUtil.toJson(toResult(code,map)));
-            }
-          });
-        }
-        break;
-      }
-      case "truckCostSearch": {
-        //线路规划 --货车
-        String json = call.argument("wayPointsJson");
-        String truckInfoJson = call.argument("truckInfoJson");
-        Integer drivingMode = call.argument("drivingMode");
-        Boolean onlyOne = call.argument("onlyOne");
-        List<LatLonPoint> wayPoints = null;
-        TruckInfo truckInfo = null;
-        if (json != null) {
-          List<Double[]> mapPoints = GsonUtil.fromJson(json, new TypeToken<List<Double[]>>() {});
-          wayPoints = coverPoint(mapPoints);
-        }
-        if (truckInfoJson != null) {
-          truckInfo = GsonUtil.fromJson(truckInfoJson, new TypeToken<TruckInfo>() {});
-        }
-        if (onlyOne==null) onlyOne = true;
-        if (wayPoints != null && wayPoints.size() >= 2) {
-          getAmapSearchClient().truckRouteSearch(wayPoints, drivingMode, truckInfo,RouteSearchV2.ShowFields.COST,onlyOne, new SearchBack() {
+          getAmapSearchClient().truckRouteSearch(wayPoints, drivingMode, truckInfo,showFields,onlyOne,simplify, new SearchBack() {
             @Override
             public void back(final int code,final Map<String,Object> map) {
               result.success(GsonUtil.toJson(toResult(code,map)));
