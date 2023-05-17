@@ -98,20 +98,18 @@
    ```
    (3).注意：单次定位不用销毁也可以不用传递clientKey，但是如果在多个地方同时使用连续定位，每个地方需传递不同的clientKey，
    销毁定位时徐传递需要销毁的定位clientKey。
-   (4).后台保活定位：后台保活定位只需在XbrLocation.instance().startTimeLocation（）中设置backgroundService为true；但是注意，一个程序仅允许一个保活定位进程，因为在安卓原生端只生成一个保活服务。一般程序也只需要在采集轨迹时才需要保活服务。
+   (4).后台保活定位：注意，一个程序仅允许一个保活定位进程，因为在安卓原生端只生成一个保活服务。一般程序也只需要在采集轨迹时才需要保活服务。
 
    ```dart
-   //TODO:开启连续定位
-   XbrLocation.instance().startTimeLocation(
-        clientKey："clientKey",//必传，整个APP只有一个定位线程时可以不传
-        backgroundService:true,//一个程序仅允许一个保活定位进程
+   //TODO:开启后台连续定位
+   XbrLocation.instance().startBackgroundLocation(
         callback：(LocationInfo? location){
           //location 对IOS和Android数据 已兼容处理
         },
    );
    
    //业务结束时销毁定位
-   XbrLocation.instance().destroyLocation(clientKey);
+   XbrLocation.instance().destroyBackgroundLocation();
    
    ```
 
@@ -137,8 +135,8 @@
    )
    //或者使用 需要满足地图所有功能时使用 绘制需要自己控制和刷新 uiController无法使用
    AMapWidget(
-      privacyStatement: XbrGaodeAmap.instace().statement,
-      apiKey: XbrGaodeAmap.instace().apikey,
+      privacyStatement: XbrAmap.instace().statement,
+      apiKey: XbrAmap.instace().apikey,
       mapType: widget.mapType??MapType.normal,
       markers: Set<Marker>.of(markers.values),
       polylines: Set<Polyline>.of(polylines.values),
