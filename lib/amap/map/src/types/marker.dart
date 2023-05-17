@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:ui' show hashValues, Offset;
+import 'dart:ui' show  Offset;
 import '../../../base/amap_flutter_base.dart';
 import 'bitmap.dart';
 import 'base_overlay.dart';
@@ -67,7 +67,7 @@ class InfoWindow {
   }
 
   @override
-  int get hashCode => hashValues(title, snippet);
+  int get hashCode => Object.hash(title, snippet);
 
   @override
   String toString() {
@@ -79,6 +79,7 @@ class InfoWindow {
 class Marker extends BaseOverlay {
   Marker({
     required this.position,
+    this.flat = true,
     double alpha = 1.0,
     Offset anchor = const Offset(0.5, 1.0),
     this.clickable = true,
@@ -96,14 +97,12 @@ class Marker extends BaseOverlay {
             (alpha != null ? (alpha < 0 ? 0 : (alpha > 1 ? 1 : alpha)) : alpha),
         // ignore: unnecessary_null_comparison
         anchor = (anchor == null
-            ? const Offset(0.5, 1.0)
-            : ((anchor.dx < 0 ||
-                    anchor.dx > 1 ||
-                    anchor.dy < 0 ||
-                    anchor.dy > 1)
-                ? const Offset(0.5, 1.0)
-                : anchor)),
+            ?  const Offset(0.5, 1.0)
+            : ((anchor.dx < 0 || anchor.dx > 1 || anchor.dy < 0 || anchor.dy > 1) ?  const Offset(0.5, 1.0) : anchor)),
         super();
+
+  /// 平贴地图效果
+  final bool flat;
 
   /// 透明度
   final double alpha;
@@ -152,6 +151,7 @@ class Marker extends BaseOverlay {
   Marker copyWith({
     double? alphaParam,
     Offset? anchorParam,
+    bool? flatParam,
     bool? clickableParam,
     bool? draggableParam,
     BitmapDescriptor? iconParam,
@@ -165,6 +165,7 @@ class Marker extends BaseOverlay {
   }) {
     Marker copyMark = Marker(
       alpha: alphaParam ?? alpha,
+      flat: flatParam ?? flat,
       anchor: anchorParam ?? anchor,
       clickable: clickableParam ?? clickable,
       draggable: draggableParam ?? draggable,
@@ -200,6 +201,7 @@ class Marker extends BaseOverlay {
     addIfPresent('anchor', _offsetToJson(anchor));
     addIfPresent('clickable', clickable);
     addIfPresent('draggable', draggable);
+    addIfPresent('flat', flat);
     addIfPresent('icon', icon?.toMap());
     addIfPresent('infoWindowEnable', infoWindowEnable);
     addIfPresent('infoWindow', infoWindow._toMap());
@@ -222,6 +224,7 @@ class Marker extends BaseOverlay {
     final Marker typedOther = other;
     return id == typedOther.id &&
         alpha == typedOther.alpha &&
+        flat == typedOther.flat &&
         anchor == typedOther.anchor &&
         clickable == typedOther.clickable &&
         draggable == typedOther.draggable &&
@@ -240,7 +243,7 @@ class Marker extends BaseOverlay {
   @override
   String toString() {
     return 'Marker{id: $id, alpha: $alpha, anchor: $anchor, '
-        'clickable: $clickable, draggable: $draggable,'
+        'clickable: $clickable, draggable: $draggable,flat: $flat,'
         'icon: $icon, infoWindowEnable: $infoWindowEnable, infoWindow: $infoWindow, position: $position, rotation: $rotation, '
         'visible: $visible, zIndex: $zIndex, onTap: $onTap}';
   }

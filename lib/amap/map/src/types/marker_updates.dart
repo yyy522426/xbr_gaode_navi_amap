@@ -1,4 +1,3 @@
-import 'dart:ui' show hashValues;
 import 'package:flutter/foundation.dart' show setEquals;
 import 'types.dart';
 
@@ -78,7 +77,7 @@ class MarkerUpdates {
 
   @override
   int get hashCode =>
-      hashValues(markersToAdd, markerIdsToRemove, markersToChange);
+      Object.hash(markersToAdd, markerIdsToRemove, markersToChange);
 
   @override
   String toString() {

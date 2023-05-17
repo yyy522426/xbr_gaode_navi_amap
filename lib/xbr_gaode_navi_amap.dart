@@ -2,10 +2,7 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
-import 'package:xbr_gaode_navi_amap/amap/xbr_amap.dart';
-import 'package:xbr_gaode_navi_amap/location/xbr_location_service.dart';
-import 'package:xbr_gaode_navi_amap/navi/xbr_navi.dart';
-import 'package:xbr_gaode_navi_amap/search/xbr_search.dart';
+
 
 class XbrGaodeNaviAmap {
   static const MethodChannel channel = MethodChannel('xbr_gaode_navi_amap');

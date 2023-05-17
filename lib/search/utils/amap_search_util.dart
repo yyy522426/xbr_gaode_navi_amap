@@ -12,8 +12,10 @@ import '../../amap/map/src/types/marker.dart';
 import '../../amap/map/src/types/polygon.dart';
 import '../../amap/map/src/types/polyline.dart';
 import '../../amap/utils/amap_util.dart';
+import '../entity/route_result.dart';
+import '../entity/truck.dart';
 import '../xbr_search.dart';
-
+import 'dart:math' as math;
 typedef OnComplete = Function(List<PlanItem> itemList);
 
 ///地图查询工具类 再封装
@@ -91,7 +93,7 @@ class AmapSearchUtil {
   // 线路规划
   static void routePlanning({required List<LatLng> wayPoints, int? strategy, PlanningCallBack? callBack}) {
     if (wayPoints.length < 2) return;
-    XbrSearch.routeSearchPage(
+    routeSearchPage(
       wayPoints: wayPoints,
       strategy: strategy ?? DrivingStrategy.DEFAULT,
       showFields: ShowFields.POLINE,
@@ -119,10 +121,9 @@ class AmapSearchUtil {
 
   // 线路計算
   static void routeCalculate({required List<LatLng> wayPoints, int? strategy, CalculateCallBack? calculateBack}) {
-    XbrSearch.routeSearchPage(
+    routeCostPage(
       wayPoints: wayPoints,
       strategy: strategy ?? DrivingStrategy.DEFAULT,
-      showFields: ShowFields.COST,
       back: (code, data) {
         if (code != 1000) return;
         if(data.paths==null|| data.paths!.isEmpty) return;
@@ -132,6 +133,173 @@ class AmapSearchUtil {
       },
     );
   }
+
+
+  static Future<void> routeSearchPage({
+    required List<LatLng> wayPoints,
+    int? strategy,
+    int? showFields,//ShowFields.
+    RouteResultBack? back,
+  }) async {
+    if(wayPoints.length<2) return;
+    int pageLimit = 7; // 最大6个途经点即8个点，预留上一个连接点，正好每页7个
+    //需要采集的数据，分页只返回一條綫路
+    List<String> polylineList = [];
+    num distance = 0;
+    num duration = 0;
+    //开始分页采集
+    nextPage(page,limit) async {
+      List<LatLng> pagePoints = paging<LatLng>(wayPoints, page, pageLimit);
+      if(pagePoints.isEmpty){
+        if(back!=null) back(1000,RouteResult(paths: [Path(polyline:polylineList.join(";"),distance: distance,duration: duration)]));
+        return;
+      }
+      if(page>1) pagePoints.insert(0,pagingLast<LatLng>(wayPoints, page-1, pageLimit));//加入上一页的最后一个点，插在首位
+      XbrSearch.routeSearch(wayPoints:pagePoints,strategy:strategy,showFields:showFields, back:(int? code, RouteResult data){
+        if(code != 1000) {
+          if(back!=null) back(code,data);//只要有一页报错，线路中断，就不要继续了
+          return;
+        }
+        if(data.paths==null || data.paths!.isEmpty) {
+          nextPage(page+1, pageLimit);
+          return;
+        }
+        List<String>? pointStr = data.paths?[0].polyline?.split(";");
+        if(pointStr!=null) polylineList.addAll(pointStr);
+        duration += data.paths?[0].duration??0;
+        distance += data.paths?[0].distance??0;
+        nextPage(page+1, pageLimit);
+      });
+    }
+    nextPage(1,pageLimit);
+  }
+
+  static Future<void> routeCostPage({
+    required List<LatLng> wayPoints,
+    int? strategy,
+    RouteResultBack? back,
+  }) async {
+    if(wayPoints.length<2) return;
+    int pageLimit = 7; // 最大6个途经点即8个点，预留上一个连接点，正好每页7个
+    //需要采集的数据，分页只返回一條綫路
+    num distance = 0;
+    num duration = 0;
+    //开始分页采集
+    nextPage(page,limit) async {
+      List<LatLng> pagePoints = paging<LatLng>(wayPoints, page, pageLimit);
+      if(pagePoints.isEmpty){
+        if(back!=null) back(1000,RouteResult(paths: [Path(distance: distance,duration: duration)]));
+        return;
+      }
+      if(page>1) pagePoints.insert(0,pagingLast<LatLng>(wayPoints, page-1, pageLimit));//加入上一页的最后一个点，插在首位
+      XbrSearch.costSearch(wayPoints:pagePoints,strategy:strategy,back:(int? code, RouteResult data){
+        if(code != 1000) {
+          if(back!=null) back(code,data);//只要有一页报错，线路中断，就不要继续了
+          return;
+        }
+        if(data.paths==null || data.paths!.isEmpty) {
+          nextPage(page+1, pageLimit);
+          return;
+        }
+        duration += data.paths?[0].duration??0;
+        distance += data.paths?[0].distance??0;
+        nextPage(page+1, pageLimit);
+      });
+    }
+    nextPage(1,pageLimit);
+  }
+
+  static Future<void> truckRouteSearchPage({
+    required List<LatLng> wayPoints,
+    int? drivingMode,
+    TruckInfo? truckInfo,
+    int? showFields,//ShowFields.
+    RouteResultBack? back,
+  }) async {
+    if(wayPoints.length<2) return;
+    int pageLimit = 7; // 最大6个途经点即8个点，预留上一个连接点，正好每页7个
+    //需要采集的数据，分页只返回一條綫路
+    List<String> polylineList = [];
+    num distance = 0;
+    num duration = 0;
+    //开始分页采集
+    nextPage(page,limit) async {
+      List<LatLng> pagePoints = paging<LatLng>(wayPoints, page, pageLimit);
+      if(pagePoints.isEmpty){
+        if(back!=null) back(1000,RouteResult(paths: [Path(polyline:polylineList.join(";"),distance: distance,duration: duration)]));
+        return;
+      }
+      if(page>1) pagePoints.insert(0,pagingLast<LatLng>(wayPoints, page-1, pageLimit));//加入上一页的最后一个点，插在首位
+      XbrSearch.truckRouteSearch(wayPoints:pagePoints,drivingMode:drivingMode,showFields:showFields,truckInfo:truckInfo, back:(int? code, RouteResult data){
+        if(code != 1000) {
+          if(back!=null) back(code,data);//只要有一页报错，线路中断，就不要继续了
+          return;
+        }
+        if(data.paths==null || data.paths!.isEmpty) {
+          nextPage(page+1, pageLimit);
+          return;
+        }
+        List<String>? pointStr = data.paths?[0].polyline?.split(";");
+        if(pointStr!=null) polylineList.addAll(pointStr);
+        duration += data.paths?[0].duration??0;
+        distance += data.paths?[0].distance??0;
+        nextPage(page+1, pageLimit);
+      });
+    }
+    nextPage(1,pageLimit);
+  }
+
+  static Future<void> truckCostSearchPage({
+    required List<LatLng> wayPoints,
+    int? drivingMode,
+    TruckInfo? truckInfo,
+    RouteResultBack? back,
+  }) async {
+    if(wayPoints.length<2) return;
+    int pageLimit = 7; // 最大6个途经点即8个点，预留上一个连接点，正好每页7个
+    //需要采集的数据，分页只返回一條綫路
+    num distance = 0;
+    num duration = 0;
+    //开始分页采集
+    nextPage(page,limit) async {
+      List<LatLng> pagePoints = paging<LatLng>(wayPoints, page, pageLimit);
+      if(pagePoints.isEmpty){
+        if(back!=null) back(1000,RouteResult(paths: [Path(distance: distance,duration: duration)]));
+        return;
+      }
+      if(page>1) pagePoints.insert(0,pagingLast<LatLng>(wayPoints, page-1, pageLimit));//加入上一页的最后一个点，插在首位
+      XbrSearch.truckCostSearch(wayPoints:pagePoints,drivingMode:drivingMode,truckInfo:truckInfo, back:(int? code, RouteResult data){
+        if(code != 1000) {
+          if(back!=null) back(code,data);//只要有一页报错，线路中断，就不要继续了
+          return;
+        }
+        if(data.paths==null || data.paths!.isEmpty) {
+          nextPage(page+1, pageLimit);
+          return;
+        }
+        duration += data.paths?[0].duration??0;
+        distance += data.paths?[0].distance??0;
+        nextPage(page+1, pageLimit);
+      });
+    }
+    nextPage(1,pageLimit);
+  }
+
+  /// 分页page 1 开始
+  static List<T> paging<T>(List<T> list, int page, int limit) {
+    List<T> listSort = [];
+    int size = list.length;
+    int pageStart = page == 1 ? 0 : (page - 1) * limit;//截取的开始位置
+    int pageEnd = math.min(size, page * limit);//截取的结束位置
+    if (size > pageStart) listSort = list.sublist(pageStart, pageEnd);
+    return listSort;
+  }
+
+  static T pagingLast<T>(List<T> list, int page, int limit) {
+    var pagingList = paging<T>(list, page, limit);
+    return pagingList.last;
+  }
+
 }
 
 

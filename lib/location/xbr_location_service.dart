@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
-
 import '../_core/location_info.dart';
 import '../_core/location_option.dart';
 import 'gaode_location.dart';
@@ -59,20 +57,21 @@ class XbrLocation {
   }
 
   ///开启后台进程定位
-  void startBackgroundLocation({
-    int interval = 2000,
-    double distance = -1,
-    AMapLocationMode locationMode = AMapLocationMode.Hight_Accuracy,
-    DesiredAccuracy desiredAccuracy = DesiredAccuracy.Best,
-    required LocationCallback callback
-  }) {
-    if (backgroundGaodeLocation != null) {
-      clientMap["xbr_background_time_location"] = backgroundGaodeLocation!;
-    }else{
+  void startBackgroundLocation(
+      {int interval = 2000,
+      double distance = -1,
+      AMapLocationMode locationMode = AMapLocationMode.Hight_Accuracy,
+      DesiredAccuracy desiredAccuracy = DesiredAccuracy.Best,
+      required LocationCallback callback}) {
+    if (backgroundGaodeLocation == null) {
       GaodeLocation? location = GaodeLocation(backgroundService: true);
-      clientMap["xbr_background_time_location"] = location;
+      location.onLocationChanged().listen((Map<String, Object> result) {
+        currentLocation = LocationInfo.fromJson(result);
+        callback(currentLocation!);
+      });
       backgroundGaodeLocation = location;
     }
+    clientMap["xbr_background_time_location"] = backgroundGaodeLocation!;
     LocationOption locationOption = LocationOption(
       onceLocation: false,
       locationInterval: interval,
@@ -83,13 +82,13 @@ class XbrLocation {
     );
     //适配ios14及以上 精准定位权限
     locationOption.fullAccuracyPurposeKey = fullAccuracyPurposeKey ?? "purposeKey";
-    clientMap["xbr_background_time_location"]?.setLocationOption(locationOption);
-    clientMap["xbr_background_time_location"]?.startLocation();
+    backgroundGaodeLocation?.setLocationOption(locationOption);
+    backgroundGaodeLocation?.startLocation();
   }
 
   ///摧毁后台进程定位
-  void destroyBackgroundLocation({required String clientKey}) {
-    destroyLocation(clientKey:"xbr_background_time_location");
+  void destroyBackgroundLocation() {
+    destroyLocation(clientKey: "xbr_background_time_location");
     backgroundGaodeLocation = null;
   }
 
