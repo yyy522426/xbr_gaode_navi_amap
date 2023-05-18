@@ -47,6 +47,7 @@ public class AmapSearchClient {
             PoiSearchV2.Query query = new PoiSearchV2.Query(keyWord, "", cityCode);
             query.setPageSize(limit);// 设置每页最多返回多少条poiitem
             query.setPageNum(page);//设置查询页码
+            query.setCityLimit(cityCode!=null);
             PoiSearchV2 poiSearch = new PoiSearchV2(context, query);
             poiSearch.setOnPoiSearchListener(new PoiQueryListener() {
                 @Override
@@ -62,15 +63,17 @@ public class AmapSearchClient {
                             locationMap.put("longitude",poiItem.getLatLonPoint().getLongitude());
                             poiItemMap.put("location",locationMap);
                         }
+                        poiItemMap.put("uid",poiItem.getPoiId());
+                        poiItemMap.put("name",poiItem.getTitle());//"北京大学"
+                        poiItemMap.put("address",poiItem.getSnippet());//颐和园路5号
+                        poiItemMap.put("province",poiItem.getProvinceName());
+                        poiItemMap.put("pcode",poiItem.getProvinceCode());
                         poiItemMap.put("city",poiItem.getCityName());
                         poiItemMap.put("citycode",poiItem.getCityCode());
                         poiItemMap.put("district",poiItem.getAdName());
-                        poiItemMap.put("provinceName",poiItem.getProvinceName());
                         poiItemMap.put("adcode",poiItem.getAdCode());
-                        poiItemMap.put("address",poiItem.getSnippet());
-                        poiItemMap.put("type",poiItem.getTypeDes());
+                        poiItemMap.put("type",poiItem.getTypeDes());//"科教文化服务;学校;高等院校"
                         poiItemMap.put("typeCode",poiItem.getTypeCode());
-                        poiItemMap.put("uid",poiItem.getPoiId());
                         poiItemMap.put("tel",poiItem.getBusiness().getTel());
                         pois.add(poiItemMap);
                     }
@@ -109,15 +112,17 @@ public class AmapSearchClient {
                             locationMap.put("longitude",poiItem.getLatLonPoint().getLongitude());
                             poiItemMap.put("location",locationMap);
                         }
+                        poiItemMap.put("uid",poiItem.getPoiId());
+                        poiItemMap.put("name",poiItem.getTitle());//"北京大学"
+                        poiItemMap.put("address",poiItem.getSnippet());//颐和园路5号
+                        poiItemMap.put("province",poiItem.getProvinceName());
+                        poiItemMap.put("pcode",poiItem.getProvinceCode());
                         poiItemMap.put("city",poiItem.getCityName());
                         poiItemMap.put("citycode",poiItem.getCityCode());
                         poiItemMap.put("district",poiItem.getAdName());
-                        poiItemMap.put("provinceName",poiItem.getProvinceName());
                         poiItemMap.put("adcode",poiItem.getAdCode());
-                        poiItemMap.put("address",poiItem.getSnippet());
-                        poiItemMap.put("type",poiItem.getTypeDes());
+                        poiItemMap.put("type",poiItem.getTypeDes());//"科教文化服务;学校;高等院校"
                         poiItemMap.put("typeCode",poiItem.getTypeCode());
-                        poiItemMap.put("uid",poiItem.getPoiId());
                         poiItemMap.put("tel",poiItem.getBusiness().getTel());
                         pois.add(poiItemMap);
                     }
