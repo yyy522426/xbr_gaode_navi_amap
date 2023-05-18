@@ -30,7 +30,7 @@ class _MapDemoPageState extends State<MapDemoPage> {
           Row(
             children: [
               Expanded(
-                child: TextButton(
+                child: ElevatedButton(
                   child: const Text("普通地图"),
                   onPressed: () {
                     setState(() {
@@ -40,7 +40,7 @@ class _MapDemoPageState extends State<MapDemoPage> {
                 ),
               ),
               Expanded(
-                child: TextButton(
+                child: ElevatedButton(
                   child: const Text("导航地图"),
                   onPressed: () {
                     setState(() {
@@ -50,7 +50,7 @@ class _MapDemoPageState extends State<MapDemoPage> {
                 ),
               ),
               Expanded(
-                child: TextButton(
+                child: ElevatedButton(
                   child: const Text("公交线路图"),
                   onPressed: () {
                     setState(() {
@@ -60,7 +60,7 @@ class _MapDemoPageState extends State<MapDemoPage> {
                 ),
               ),
               Expanded(
-                child: TextButton(
+                child: ElevatedButton(
                   child: const Text("夜间地图"),
                   onPressed: () {
                     setState(() {
@@ -70,7 +70,7 @@ class _MapDemoPageState extends State<MapDemoPage> {
                 ),
               ),
               Expanded(
-                child: TextButton(
+                child: ElevatedButton(
                   child: const Text("卫星图"),
                   onPressed: () {
                     setState(() {
