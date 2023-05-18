@@ -41,7 +41,7 @@ class _SearchDemoPageState extends State<SearchDemoPage> {
                   keyWord: "北京大学",
                   back: (code, data) {
                     setState(() {
-                      result = data.toJson().toString();
+                      result = data.toString();
                     });
                   },
                 );
