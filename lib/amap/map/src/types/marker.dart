@@ -81,7 +81,7 @@ class Marker extends BaseOverlay {
     required this.position,
     this.flat = true,
     double alpha = 1.0,
-    Offset anchor = const Offset(0.5, 1.0),
+    Offset? anchor,
     this.clickable = true,
     this.draggable = false,
     this.icon = BitmapDescriptor.defaultMarker,
@@ -97,8 +97,8 @@ class Marker extends BaseOverlay {
             (alpha != null ? (alpha < 0 ? 0 : (alpha > 1 ? 1 : alpha)) : alpha),
         // ignore: unnecessary_null_comparison
         anchor = (anchor == null
-            ?  const Offset(0.5, 1.0)
-            : ((anchor.dx < 0 || anchor.dx > 1 || anchor.dy < 0 || anchor.dy > 1) ?  const Offset(0.5, 1.0) : anchor)),
+            ?   Offset(0.5, 1.0)
+            : ((anchor.dx < 0 || anchor.dx > 1 || anchor.dy < 0 || anchor.dy > 1) ?  Offset(0.5, 1.0) : anchor)),
         super();
 
   /// 平贴地图效果

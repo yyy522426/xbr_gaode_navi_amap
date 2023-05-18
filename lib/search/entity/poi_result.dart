@@ -1,3 +1,5 @@
+import 'package:xbr_gaode_navi_amap/amap/base/amap_flutter_base.dart';
+
 class PoiResult {
   List<Pois>? pois;
   num? count;
@@ -26,8 +28,8 @@ class PoiResult {
 }
 
 class Pois {
-  EnterLocation? enterLocation;
-  EnterLocation? location;
+  LatLng? enterLocation;
+  LatLng? location;
   String? district;
   String? province;
   String? typecode;
@@ -89,10 +91,10 @@ class Pois {
 
   Pois.fromJson(Map<String, dynamic> json) {
     enterLocation = json['enterLocation'] != null
-        ? EnterLocation.fromJson(json['enterLocation'])
+        ? LatLng.fromJson(json['enterLocation'])
         : null;
     location = json['location'] != null
-        ? EnterLocation.fromJson(json['location'])
+        ? LatLng.fromJson(json['location'])
         : null;
     district = json['district'];
     province = json['province'];
@@ -180,24 +182,6 @@ class Pois {
   }
 }
 
-class EnterLocation {
-  double? longitude;
-  double? latitude;
-
-  EnterLocation({this.longitude, this.latitude});
-
-  EnterLocation.fromJson(Map<String, dynamic> json) {
-    longitude = json['longitude'];
-    latitude = json['latitude'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['longitude'] = longitude;
-    data['latitude'] = latitude;
-    return data;
-  }
-}
 
 class Images {
   String? title;
@@ -222,7 +206,7 @@ class SubPOIs {
   String? address;
   String? uid;
   num? distance;
-  EnterLocation? location;
+  LatLng? location;
   String? sname;
   String? subtype;
   String? name;
@@ -241,7 +225,7 @@ class SubPOIs {
     uid = json['uid'];
     distance = json['distance'];
     location = json['location'] != null
-        ? EnterLocation.fromJson(json['location'])
+        ? LatLng.fromJson(json['location'])
         : null;
     sname = json['sname'];
     subtype = json['subtype'];
