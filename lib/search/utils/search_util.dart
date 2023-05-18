@@ -90,7 +90,7 @@ class SearchUtil {
     );
   }
 
-  // 线路规划
+  // 线路规划 ShowFields.POLINE,
   static void planning({required List<LatLng> wayPoints, int? strategy, PlanningCallBack? planningBack}) {
     if (wayPoints.length < 2) return;
     routeSearchPage(
@@ -119,7 +119,7 @@ class SearchUtil {
     );
   }
 
-  // 线路計算
+  // 线路計算 ShowFields.COST,
   static void calculate({required List<LatLng> wayPoints, int? strategy, CalculateCallBack? calculateBack}) {
     routeSearchPage(
       wayPoints: wayPoints,

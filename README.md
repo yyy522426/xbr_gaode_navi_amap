@@ -1,19 +1,18 @@
 # xbr_gaode_navi_amap
 
-#### 介绍，高德系列：
+### 介绍，高德系列：
 
 欢迎使用高德集成库，本插件包含 高德地图显示、高德地图查询、高德GPS服务、高德导航。使用前您需了解
 
-1.本插件是因为高德导航官方包无法分包，必须使用合包，所以才将所有模块集成。若没有导航需求，不建议使用
-2.您可以单独使用地图插件：xbr_gaode_amap
-3.您可以单独使用地图查询插件：xbr_gaode_search
-4.您可以单独使用定位插件：xbr_gaode_location
-
-5.下面的截图属于：xbr_gaode_amap，可以下载xbr_gaode_amap的demo查看
+#### 1.本插件是因为高德导航官方包无法分包，必须使用合包，所以才将所有模块集成。若没有导航需求，不建议使用
+#### 2.您可以单独使用地图插件：xbr_gaode_amap
+#### 3.您可以单独使用地图查询插件：xbr_gaode_search
+#### 4.您可以单独使用定位插件：xbr_gaode_location
+#### 5.下面的截图属于：xbr_gaode_amap，可以下载xbr_gaode_amap的demo查看
 
 ![](http://gzyl.oss-cn-shenzhen.aliyuncs.com/emergencyImg20220409_161315652tupianpinjie.jpg?Expires=1964941960&OSSAccessKeyId=LTAIbSwdJpv7vRhC&Signature=Vo0CvpUVDbz%2Ba4ghrxwORMqALR4%3D)
 
-#### 主要功能
+### 主要功能
 
 1.查询插件，查询功能如下
 
@@ -49,7 +48,7 @@
 
 ​	（3）增加了利用多边形绘制圆的方法
 
-​	（4）修复Marker不能平铺在地图上，使用 FMarker 增加了flat字段，为true时可以平铺在地图上
+​	（4）修复Marker不能平铺在地图上，增加了flat字段，为true时可以平铺在地图上
 
 ​	（5）协调了地图查询功能和地图的整合，可以一键绘制路线
 
@@ -62,17 +61,17 @@
 ​	（3）emulator：虚拟导航
 
 
-#### 安装教程
+### 安装教程
 ```dart
   xbr_gaode_navi_amap: ^1.0.0
 ```
 
-#### 使用说明
+### 使用说明
 
-1. ##### 定位
+1. #### 定位
 
-   (1).定位权限配置，使用第三方 permission_handler 动态权限工具，  使用方法请移步 permission_handler
-   (2).定位调用
+   ##### (1).定位权限配置，使用第三方 permission_handler 动态权限工具，  使用方法请移步 permission_handler
+   ##### (2).定位调用
 
    ```dart
        //TODO:开始单次定位 定位成功自动销毁
@@ -96,9 +95,9 @@
            super.dispose();
        }
    ```
-   (3).注意：单次定位不用销毁也可以不用传递clientKey，但是如果在多个地方同时使用连续定位，每个地方需传递不同的clientKey，
+   ##### (3).注意：单次定位不用销毁也可以不用传递clientKey，但是如果在多个地方同时使用连续定位，每个地方需传递不同的clientKey，
    销毁定位时徐传递需要销毁的定位clientKey。
-   (4).后台保活定位：注意，一个程序仅允许一个保活定位进程，因为在安卓原生端只生成一个保活服务。一般程序也只需要在采集轨迹时才需要保活服务。
+   ##### (4).后台保活定位：注意，一个程序仅允许一个保活定位进程，因为在安卓原生端只生成一个保活服务。一般程序也只需要在采集轨迹时才需要保活服务。
 
    ```dart
    //TODO:开启后台连续定位
@@ -113,11 +112,11 @@
    
    ```
 
-3. ###### 地图使用:
+3. #### 地图使用:
    ```dart
     AMapUIController uiController = AMapUIController();
    ```
-   (1).地图控件
+   #####(1).地图控件
    ```dart
    //简单使用，默认了地图部分功能，快速使用
     AmapWidget(
@@ -149,7 +148,7 @@
       scaleEnabled:false,
     )
    ```
-   (2).地图绘制
+   #####(2).地图绘制
    ```dart
       //1.绘制线
       uiController.savePolyline("pathlineId", Polyline(..));
@@ -164,13 +163,13 @@
       uiController.refreshUI();
    ```
    
-   (3).uiController.getMarker(id)、uiController.getPolyline(id)、uiController.getPolygon(id)可以获取地图中已经存在的元素，进行动态编辑。同样的还有删除和清空操作。
+   #####(3).uiController.getMarker(id)、uiController.getPolyline(id)、uiController.getPolygon(id)可以获取地图中已经存在的元素，进行动态编辑。同样的还有删除和清空操作。
    
-3. ###### 地图查询:
+3. #### 地图查询:
 
-   (1).线路规划
+   #####(1).线路规划
    ```dart
-    SearchUtil.routePlanning(
+    SearchUtil.route(
          wayPoints: list, //第一个为起点，最后一个为终点，中间为途径点,支持无限个点
          callBack: (code, linePoints, bounds) {
                //code 1000为成功
@@ -209,7 +208,7 @@
    XbrSearch.truckRouteSearch();
    //drivingMode不等于strategy：在DrivingMode中已定义
    ```
-   (2).算路
+   #####(2).算路
    ```dart
    //线路规划时选择需要返回的字段
    //showFields = 1 ：只返回时间、距离及费用
@@ -221,32 +220,32 @@
         如 1+16=17：返回时间、距离及费用+返回规划线路点串
         如 1+4+16=21：返回时间、距离及费用+导航信息+返回规划线路点串
    ```
-   (3).关键字检索
+   #####(3).关键字检索
    ```dart
    XbrSearch.keywordsSearch(keyWord);
    //keyWord：关键字
    ```
-   (4)周边检索
+   #####(4)周边检索
    ```dart
    XbrSearch.boundSearch(point,score);
    //point：中心点
    //score：搜索半径（米）
    ```
-   (5)搜索提示
+   #####(5)搜索提示
    ```dart
    XbrSearch.inputTips(newTextnewText);
    //newTextnewText:需要提示的文本
    ```
-   (6)POI详情
+   #####(6)POI详情
    ```dart
    XbrSearch.getPOIById(id);
    ```
-   (7)地理编码和逆地理编码
+   #####(7)地理编码和逆地理编码
    ```dart
    XbrSearch.geocoding(address);
    XbrSearch.reGeocoding(point);
    ```
-###### 4.导航
+#### 4.导航
 导航比较简单
  ```dart
  XbrNavi.startNavi(points,strategy,emulator);
@@ -257,7 +256,7 @@
 //subtext：标题，仅android有效
  ```
 
-#### 参与贡献
+### 参与贡献
 
 1.  版本内置 高德官方插件  amap_flutter_map，amap_flutter_location，使用前需参考高德API
 2.  example中有动态权限功能，使用：permission_handler
