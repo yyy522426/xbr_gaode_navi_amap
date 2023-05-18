@@ -17,14 +17,6 @@ class PoiResult {
     count = json['count']??0;
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (pois != null) {
-      data['pois'] = pois!.map((v) => v.toJson()).toList();
-    }
-    data['count'] = count??0;
-    return data;
-  }
 }
 
 class Pois {
@@ -91,10 +83,10 @@ class Pois {
 
   Pois.fromJson(Map<String, dynamic> json) {
     enterLocation = json['enterLocation'] != null
-        ? LatLng.fromJson(json['enterLocation'])
+        ? LatLng.fromJsonMap(json['enterLocation'])
         : null;
     location = json['location'] != null
-        ? LatLng.fromJson(json['location'])
+        ? LatLng.fromJsonMap(json['location'])
         : null;
     district = json['district'];
     province = json['province'];
@@ -136,50 +128,6 @@ class Pois {
     address = json['address'];
     indoorData = json['indoorData'];
   }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (enterLocation != null) {
-      data['enterLocation'] = enterLocation!.toJson();
-    }
-    if (location != null) {
-      data['location'] = location!.toJson();
-    }
-    data['district'] = district;
-    data['province'] = province;
-    data['typecode'] = typecode;
-    data['tel'] = tel;
-    data['hasIndoorMap'] = hasIndoorMap;
-    data['businessArea'] = businessArea;
-    if (images != null) {
-      data['images'] = images!.map((v) => v.toJson()).toList();
-    }
-    data['parkingType'] = parkingType;
-    data['city'] = city;
-    data['exitLocation'] = exitLocation;
-    data['adcode'] = adcode;
-    data['name'] = name;
-    data['type'] = type;
-    if (subPOIs != null) {
-      data['subPOIs'] = subPOIs!.map((v) => v.toJson()).toList();
-    }
-    data['shopID'] = shopID;
-    data['gridcode'] = gridcode;
-    data['uid'] = uid;
-    data['website'] = website;
-    data['pcode'] = pcode;
-    data['distance'] = distance;
-    data['email'] = email;
-    if (extensionInfo != null) {
-      data['extensionInfo'] = extensionInfo!.toJson();
-    }
-    data['direction'] = direction;
-    data['citycode'] = citycode;
-    data['postcode'] = postcode;
-    data['address'] = address;
-    data['indoorData'] = indoorData;
-    return data;
-  }
 }
 
 
@@ -194,12 +142,6 @@ class Images {
     url = json['url'];
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['title'] = title;
-    data['url'] = url;
-    return data;
-  }
 }
 
 class SubPOIs {
@@ -225,26 +167,13 @@ class SubPOIs {
     uid = json['uid'];
     distance = json['distance'];
     location = json['location'] != null
-        ? LatLng.fromJson(json['location'])
+        ? LatLng.fromJsonMap(json['location'])
         : null;
     sname = json['sname'];
     subtype = json['subtype'];
     name = json['name'];
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['address'] = address;
-    data['uid'] = uid;
-    data['distance'] = distance;
-    if (location != null) {
-      data['location'] = location!.toJson();
-    }
-    data['sname'] = sname;
-    data['subtype'] = subtype;
-    data['name'] = name;
-    return data;
-  }
 }
 
 class ExtensionInfo {
@@ -260,13 +189,6 @@ class ExtensionInfo {
     rating = json['rating'];
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['cost'] = cost;
-    data['openTime'] = openTime;
-    data['rating'] = rating;
-    return data;
-  }
 }
 
 class SearchSuggestionCity {
@@ -282,11 +204,4 @@ class SearchSuggestionCity {
     adcode = json['adcode'];
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['city'] = city;
-    data['citycode'] = citycode;
-    data['adcode'] = adcode;
-    return data;
-  }
 }

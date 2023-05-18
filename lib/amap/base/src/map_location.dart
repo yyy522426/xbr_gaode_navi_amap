@@ -138,12 +138,14 @@ class LatLng {
     return {"latitude":latitude, "longitude":longitude};
   }
 
-  /// 根据传入的经纬度数组 \[lat, lng\] 序列化一个LatLng对象.
   static LatLng? fromJson(dynamic json) {
-    if (json == null) {
-      return null;
-    }
+    if (json == null) return null;
     return LatLng(json[0]??0, json[1]??0);
+  }
+
+  static LatLng? fromJsonMap(dynamic json) {
+    if (json == null) return null;
+    return LatLng(json["latitude"]??0, json["longitude"]??0);
   }
 
   @override
